@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { put, list } from '@vercel/blob'
 import { promises as fs } from 'fs'
 import path from 'path'
 
 const SURVEY_VERSION = '1.0'
-const AUDIT_LOG = path.join(process.cwd(), 'audit-log.json')
+const BLOB_KEY = 'audit-log.json'
+const LOCAL_LOG = path.join(process.cwd(), 'audit-log.json')
 
 const QUESTIONS = [
   'Does your organization maintain written compliance procedures?',
@@ -26,6 +28,36 @@ function getRisk(score: number) {
   if (score >= 65) return { level: 'Low Risk',      badge: 'low',      color: '#10B981' }
   if (score >= 40) return { level: 'Moderate Risk', badge: 'moderate', color: '#F59E0B' }
   return               { level: 'High Risk',        badge: 'high',     color: '#EF4444' }
+}
+
+const useBlob = () => !!process.env.BLOB_READ_WRITE_TOKEN
+
+async function readLog(): Promise<unknown[]> {
+  try {
+    if (useBlob()) {
+      const { blobs } = await list({ prefix: BLOB_KEY })
+      if (!blobs.length) return []
+      const res = await fetch(blobs[0].downloadUrl)
+      return await res.json()
+    } else {
+      const raw = await fs.readFile(LOCAL_LOG, 'utf8')
+      return JSON.parse(raw)
+    }
+  } catch {
+    return []
+  }
+}
+
+async function writeLog(log: unknown[]) {
+  if (useBlob()) {
+    await put(BLOB_KEY, JSON.stringify(log, null, 2), {
+      access: 'public',
+      contentType: 'application/json',
+      allowOverwrite: true,
+    })
+  } else {
+    await fs.writeFile(LOCAL_LOG, JSON.stringify(log, null, 2))
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -117,13 +149,9 @@ Guidelines:
       riskLevel: risk.level,
     }
 
-    let log: unknown[] = []
-    try {
-      const raw = await fs.readFile(AUDIT_LOG, 'utf8')
-      log = JSON.parse(raw)
-    } catch {}
+    const log = await readLog()
     log.push(auditRecord)
-    await fs.writeFile(AUDIT_LOG, JSON.stringify(log, null, 2))
+    await writeLog(log)
 
     return NextResponse.json({
       success: true,
