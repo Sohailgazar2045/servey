@@ -149,9 +149,13 @@ Guidelines:
       riskLevel: risk.level,
     }
 
-    const log = await readLog()
-    log.push(auditRecord)
-    await writeLog(log)
+    try {
+      const log = await readLog()
+      log.push(auditRecord)
+      await writeLog(log)
+    } catch (logErr) {
+      console.error('Audit log write failed (non-fatal):', logErr)
+    }
 
     return NextResponse.json({
       success: true,
