@@ -11,7 +11,7 @@ const FEATURES = [
     Icon: Bot,
     title: 'AI-Powered Analysis',
     description:
-      "Claude analyzes your specific responses to generate targeted strengths, gaps, and recommendations — not generic templates copied from a checklist.",
+      "Gemini analyzes your specific responses to generate targeted strengths, gaps, and recommendations — not generic templates copied from a checklist.",
   },
   {
     Icon: FileText,
