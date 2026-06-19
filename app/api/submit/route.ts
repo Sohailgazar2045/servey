@@ -54,20 +54,16 @@ export async function POST(req: NextRequest) {
       recommendations: [] as string[],
     }
 
-    const apiKey = process.env.ANTHROPIC_API_KEY
+    const apiKey = process.env.GEMINI_API_KEY
     if (apiKey) {
       try {
-        const client = new Anthropic({ apiKey })
+        const genAI = new GoogleGenerativeAI(apiKey)
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
         const answerBlock = scoredAnswers
           .map((a, i) => `Q${i + 1}: ${a.question}\nAnswer: ${a.answer} (${a.points} pts)`)
           .join('\n\n')
 
-        const msg = await client.messages.create({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 900,
-          messages: [{
-            role: 'user',
-            content:
+        const prompt =
 `You are an FCC regulatory compliance expert. Analyze this ${industry} company's readiness survey.
 
 Company: ${companyName}
@@ -86,11 +82,10 @@ Guidelines:
 - strengths (2–3): based on Yes/high-score answers; specific to FCC obligations for ${industry}
 - weaknesses (2–3): based on No/Partial answers; specific to FCC compliance gaps
 - recommendations (3): actionable, prioritized steps; 1–2 sentences each
-- If all answers are Yes, highlight the strong posture and suggest sustaining practices`,
-          }],
-        })
+- If all answers are Yes, highlight the strong posture and suggest sustaining practices`
 
-        const raw = msg.content[0].type === 'text' ? msg.content[0].text.trim() : ''
+        const result = await model.generateContent(prompt)
+        const raw = result.response.text().trim()
         analysis = JSON.parse(raw)
       } catch (aiErr) {
         console.error('AI error (using fallback):', aiErr)
