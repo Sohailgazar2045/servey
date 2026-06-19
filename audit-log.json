@@ -1,0 +1,167 @@
+[
+  {
+    "id": "1781869955477",
+    "surveyVersion": "1.0",
+    "submissionDate": "2026-06-19T11:52:35.468Z",
+    "scoreGenerated": "June 19, 2026 at 04:52 PM GMT+5",
+    "companyName": "jhon",
+    "contactName": "smith",
+    "user": "john@gmail.com",
+    "industry": "Manufacturer",
+    "responses": [
+      {
+        "question": "Does your organization maintain written compliance procedures?",
+        "answer": "partially",
+        "points": 5
+      },
+      {
+        "question": "Do you track FCC filing deadlines?",
+        "answer": "somewhat",
+        "points": 5
+      },
+      {
+        "question": "Are compliance responsibilities assigned to specific personnel?",
+        "answer": "yes",
+        "points": 10
+      },
+      {
+        "question": "Have you conducted an FCC compliance review within the last 12 months?",
+        "answer": "yes",
+        "points": 10
+      },
+      {
+        "question": "Are compliance documents stored in a centralized system?",
+        "answer": "partially",
+        "points": 5
+      },
+      {
+        "question": "Can you produce documentation during an audit within 48 hours?",
+        "answer": "unsure",
+        "points": 5
+      },
+      {
+        "question": "Are compliance-related communications documented?",
+        "answer": "yes",
+        "points": 10
+      },
+      {
+        "question": "Do you have a process for tracking corrective actions?",
+        "answer": "yes",
+        "points": 10
+      }
+    ],
+    "score": 60,
+    "maxScore": 80,
+    "riskLevel": "Moderate Risk"
+  },
+  {
+    "id": "1781874516907",
+    "surveyVersion": "1.0",
+    "submissionDate": "2026-06-19T13:08:36.899Z",
+    "scoreGenerated": "June 19, 2026 at 06:08 PM GMT+5",
+    "companyName": "new",
+    "contactName": "tester",
+    "user": "test@gmail.com",
+    "industry": "Consultant",
+    "responses": [
+      {
+        "question": "Does your organization maintain written compliance procedures?",
+        "answer": "no",
+        "points": 0
+      },
+      {
+        "question": "Do you track FCC filing deadlines?",
+        "answer": "yes",
+        "points": 10
+      },
+      {
+        "question": "Are compliance responsibilities assigned to specific personnel?",
+        "answer": "partially",
+        "points": 5
+      },
+      {
+        "question": "Have you conducted an FCC compliance review within the last 12 months?",
+        "answer": "no",
+        "points": 0
+      },
+      {
+        "question": "Are compliance documents stored in a centralized system?",
+        "answer": "partially",
+        "points": 5
+      },
+      {
+        "question": "Can you produce documentation during an audit within 48 hours?",
+        "answer": "unsure",
+        "points": 5
+      },
+      {
+        "question": "Are compliance-related communications documented?",
+        "answer": "sometimes",
+        "points": 5
+      },
+      {
+        "question": "Do you have a process for tracking corrective actions?",
+        "answer": "yes",
+        "points": 10
+      }
+    ],
+    "score": 40,
+    "maxScore": 80,
+    "riskLevel": "Moderate Risk"
+  },
+  {
+    "id": "1781874670865",
+    "surveyVersion": "1.0",
+    "submissionDate": "2026-06-19T13:11:10.865Z",
+    "scoreGenerated": "June 19, 2026 at 06:11 PM GMT+5",
+    "companyName": "test ",
+    "contactName": "hjhjfh",
+    "user": "testwe@gmail.com",
+    "industry": "Consultant",
+    "responses": [
+      {
+        "question": "Does your organization maintain written compliance procedures?",
+        "answer": "yes",
+        "points": 10
+      },
+      {
+        "question": "Do you track FCC filing deadlines?",
+        "answer": "yes",
+        "points": 10
+      },
+      {
+        "question": "Are compliance responsibilities assigned to specific personnel?",
+        "answer": "yes",
+        "points": 10
+      },
+      {
+        "question": "Have you conducted an FCC compliance review within the last 12 months?",
+        "answer": "no",
+        "points": 0
+      },
+      {
+        "question": "Are compliance documents stored in a centralized system?",
+        "answer": "partially",
+        "points": 5
+      },
+      {
+        "question": "Can you produce documentation during an audit within 48 hours?",
+        "answer": "unsure",
+        "points": 5
+      },
+      {
+        "question": "Are compliance-related communications documented?",
+        "answer": "sometimes",
+        "points": 5
+      },
+      {
+        "question": "Do you have a process for tracking corrective actions?",
+        "answer": "yes",
+        "points": 10
+      }
+    ],
+    "score": 55,
+    "maxScore": 80,
+    "riskLevel": "Moderate Risk"
+  }
+]

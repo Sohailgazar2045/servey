@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FCC Compliance Readiness Survey</title>
+<style>
+:root {
+  --ground: #F4F6FB;
+  --surface: #FFFFFF;
+  --navy: #0F2444;
+  --navy-mid: #1A3A6B;
+  --amber: #B8821E;
+  --blue: #2558A8;
+  --blue-light: #EBF2FF;
+  --text: #0D1B2E;
+  --muted: #5A6A82;
+  --border: #D0D8E8;
+  --border-strong: #A8B4CC;
+  --mono: 'Cascadia Code','Consolas','SF Mono','Fira Code',ui-monospace,monospace;
+  --sans: system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--ground);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;}
+
+/* ── SHELL ── */
+.shell{min-height:100vh;display:flex;flex-direction:column;}
+.topbar{background:var(--navy);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:100;}
+.topbar-logo{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.85);}
+.topbar-ver{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.06em;}
+.prog-strip{height:3px;background:rgba(255,255,255,.08);}
+.prog-fill{height:100%;background:var(--amber);transition:width .5s cubic-bezier(.4,0,.2,1);width:0%;}
+.main{flex:1;max-width:700px;margin:0 auto;padding:36px 24px 80px;width:100%;}
+
+/* ── VIEWS ── */
+.view{display:none;}
+.view.active{display:block;animation:fadeUp .28s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+@media(prefers-reduced-motion:reduce){.view.active{animation:none;}.gauge-fill{transition:none!important;}}
+
+/* ── STEP INDICATOR ── */
+.steps{display:flex;align-items:center;margin-bottom:28px;}
+.step{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+.step.active{color:var(--navy);}
+.step.done{color:var(--blue);}
+.step-dot{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:600;flex-shrink:0;}
+.step.active .step-dot{background:var(--navy);border-color:var(--navy);color:#fff;}
+.step.done .step-dot{background:var(--blue);border-color:var(--blue);color:#fff;}
+.step-line{flex:1;height:1px;background:var(--border);margin:0 12px;}
+
+/* ── CARD ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:32px;margin-bottom:16px;}
+.card-head{padding-bottom:20px;border-bottom:1px solid var(--border);margin-bottom:28px;}
+.eyebrow{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:8px;}
+.card-title{font-size:20px;font-weight:700;letter-spacing:-.02em;color:var(--navy);line-height:1.2;}
+.card-desc{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.6;}
+
+/* ── WELCOME HERO ── */
+.hero{background:var(--navy);border-radius:3px;padding:44px 40px;margin-bottom:16px;position:relative;overflow:hidden;color:#fff;}
+.hero::before{content:'';position:absolute;right:-32px;top:-32px;width:200px;height:200px;border:36px solid rgba(184,130,30,.12);border-radius:50%;pointer-events:none;}
+.hero::after{content:'';position:absolute;right:48px;bottom:-72px;width:160px;height:160px;border:28px solid rgba(184,130,30,.07);border-radius:50%;pointer-events:none;}
+.hero-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);margin-bottom:16px;}
+.hero-h1{font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1.1;margin-bottom:14px;}
+.hero-sub{font-size:14px;color:rgba(255,255,255,.65);max-width:400px;line-height:1.65;}
+.hero-stats{display:flex;gap:28px;margin-top:28px;padding-top:24px;border-top:1px solid rgba(255,255,255,.1);}
+.stat-val{font-family:var(--mono);font-size:20px;font-weight:600;color:#fff;display:block;}
+.stat-lbl{font-size:11px;color:rgba(255,255,255,.45);letter-spacing:.04em;margin-top:2px;display:block;}
+.feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.feat{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:var(--text);}
+.feat-icon{font-size:15px;flex-shrink:0;}
+
+/* ── FORM ── */
+.form-group{margin-bottom:22px;}
+.form-label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;}
+.form-code{font-family:var(--mono);font-size:10px;color:var(--muted);font-weight:400;margin-right:6px;}
+.form-input{width:100%;padding:9px 13px;border:1px solid var(--border);border-radius:3px;font-size:14px;font-family:var(--sans);background:#FAFBFD;color:var(--text);transition:border-color .15s,box-shadow .15s;outline:none;}
+.form-input:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(37,88,168,.1);}
+.form-input.err{border-color:#C0392B;background:#FFF8F8;}
+.select-wrap{position:relative;}
+.select-wrap::after{content:'';position:absolute;right:13px;top:50%;transform:translateY(-50%);width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid var(--muted);pointer-events:none;}
+.form-input.select{appearance:none;padding-right:32px;}
+.field-err{font-size:12px;color:#C0392B;margin-top:4px;display:none;}
+.field-err.show{display:block;}
+
+/* ── QUESTIONS ── */
+.q-block{border:1px solid var(--border);border-radius:3px;margin-bottom:14px;overflow:hidden;transition:border-color .15s;}
+.q-block.q-error{border-color:#C0392B;}
+.q-head{display:flex;align-items:flex-start;gap:14px;padding:16px 18px;background:#FAFBFD;border-bottom:1px solid var(--border);}
+.q-ref{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.08em;flex-shrink:0;padding-top:2px;}
+.q-text{font-size:14px;font-weight:500;color:var(--text);line-height:1.5;}
+.q-opts{display:flex;padding:12px 18px;gap:8px;flex-wrap:wrap;}
+.opt{display:flex;}
+.opt input[type=radio]{display:none;}
+.opt-lbl{padding:7px 18px;border:1px solid var(--border);border-radius:2px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .12s;user-select:none;background:var(--surface);}
+.opt input:checked+.opt-lbl{background:var(--navy);border-color:var(--navy);color:#fff;}
+.opt-lbl:hover{border-color:var(--navy-mid);color:var(--navy);}
+.opt input:checked+.opt-lbl:hover{background:var(--navy-mid);color:#fff;}
+.q-err-msg{font-family:var(--mono);font-size:11px;color:#C0392B;padding:0 18px 10px;display:none;}
+.q-err-msg.show{display:block;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border:none;border-radius:3px;font-size:13px;font-weight:600;cursor:pointer;letter-spacing:.03em;transition:all .15s;font-family:var(--sans);line-height:1;}
+.btn-primary{background:var(--navy);color:#fff;}
+.btn-primary:hover{background:var(--navy-mid);}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);}
+.btn-ghost:hover{border-color:var(--border-strong);color:var(--text);}
+.btn-amber{background:var(--amber);color:#fff;}
+.btn-amber:hover{background:#9A6D16;}
+.btn-row{display:flex;align-items:center;justify-content:space-between;margin-top:24px;}
+
+/* ── PROCESSING ── */
+.proc-wrap{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:60px 40px;text-align:center;}
+.proc-track{width:180px;height:2px;background:var(--border);margin:0 auto 24px;border-radius:1px;overflow:hidden;}
+.proc-bar{height:100%;background:var(--amber);width:0%;animation:procFill 2.1s ease-in-out forwards;}
+@keyframes procFill{0%{width:0%;}65%{width:82%;}100%{width:100%;}}
+.proc-msg{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;}
+
+/* ── RESULTS: INSTRUMENT ── */
+.instrument{background:var(--navy);border-radius:3px;padding:36px 40px;margin-bottom:16px;color:#fff;}
+.instr-label{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:12px;}
+.instr-readout{display:flex;align-items:baseline;gap:10px;margin-bottom:18px;}
+.instr-score{font-family:var(--mono);font-size:68px;font-weight:600;line-height:1;letter-spacing:-.04em;color:#fff;min-width:2ch;}
+.instr-denom{font-family:var(--mono);font-size:22px;color:rgba(255,255,255,.3);}
+.gauge-track{height:5px;background:rgba(255,255,255,.1);border-radius:1px;overflow:hidden;margin-bottom:8px;}
+.gauge-fill{height:100%;background:var(--amber);border-radius:1px;transition:width 1s cubic-bezier(.4,0,.2,1) .2s;width:0%;}
+.gauge-ticks{display:flex;justify-content:space-between;}
+.tick{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.tick-line{width:1px;height:4px;background:rgba(255,255,255,.2);}
+.tick-val{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.28);letter-spacing:.04em;}
+.risk-pill{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:2px;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-top:16px;}
+.risk-dot{width:7px;height:7px;border-radius:50%;}
+.rl-low{background:rgba(26,102,68,.22);color:#5DCFA0;}.rl-low .risk-dot{background:#5DCFA0;}
+.rl-moderate{background:rgba(138,96,16,.28);color:#F5CC7A;}.rl-moderate .risk-dot{background:#F5CC7A;}
+.rl-elevated{background:rgba(160,64,32,.28);color:#F5B090;}.rl-elevated .risk-dot{background:#F5B090;}
+.rl-high{background:rgba(139,26,26,.32);color:#F5A8A8;}.rl-high .risk-dot{background:#F5A8A8;}
+
+/* ── ANALYSIS ── */
+.analysis-block{margin-bottom:22px;}
+.analysis-hd{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.analysis-icon{width:26px;height:26px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.ai-str{background:#EBF7F0;color:#1A6644;}
+.ai-wk{background:#FDF0F0;color:#8B1A1A;}
+.ai-rc{background:#EBF2FF;color:var(--blue);}
+.analysis-title{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;}
+.at-str{color:#1A6644;}.at-wk{color:#8B1A1A;}.at-rc{color:var(--blue);}
+.finding{padding:9px 13px;font-size:13px;line-height:1.55;border-left:2px solid var(--border);margin-bottom:7px;background:#FAFBFD;}
+.f-str{border-left-color:#1A6644;}.f-wk{border-left-color:#8B1A1A;}.f-rc{border-left-color:var(--blue);}
+
+/* ── FINDINGS TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.tbl th{background:var(--navy);color:rgba(255,255,255,.8);padding:9px 10px;text-align:left;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top;}
+.tbl tr:nth-child(even) td{background:#FAFBFD;}
+.td-ref{font-family:var(--mono);font-size:10px;color:var(--muted);}
+.td-ans{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--navy-mid);}
+.td-pts{font-family:var(--mono);font-weight:700;font-size:13px;color:var(--navy);text-align:center;}
+.td-risk{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.dr-low{color:#1A6644;}.dr-mod{color:#8A6010;}.dr-high{color:#8B1A1A;}
+.tbl-foot td{background:var(--navy)!important;color:rgba(255,255,255,.9)!important;font-family:var(--mono);font-weight:700;font-size:12px;}
+
+/* ── AUDIT GRID ── */
+.audit-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.audit-field{display:flex;flex-direction:column;gap:3px;}
+.audit-key{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.audit-val{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--navy);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:540px){
+  .main{padding:24px 16px 60px;}
+  .hero{padding:32px 24px;}.hero-h1{font-size:26px;}
+  .feature-grid{grid-template-columns:1fr;}
+  .audit-grid{grid-template-columns:1fr;}
+  .instr-score{font-size:52px;}
+  .card{padding:22px 18px;}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<header class="topbar">
+  <div class="topbar-logo">FCC Compliance Survey</div>
+  <div class="topbar-ver">v1.0</div>
+</header>
+<div class="prog-strip"><div class="prog-fill" id="progFill"></div></div>
+
+<main class="main">
+
+<!-- ═══ WELCOME ═══ -->
+<div class="view active" id="view-welcome">
+  <div class="hero">
+    <div class="hero-eyebrow">Pre-Screening Assessment · Survey v1.0</div>
+    <h1 class="hero-h1">FCC Compliance<br>Readiness Survey</h1>
+    <p class="hero-sub">A structured assessment that benchmarks your organization's compliance posture against eight FCC regulatory criteria — with an AI-generated risk report delivered instantly.</p>
+    <div class="hero-stats">
+      <div><span class="stat-val">8</span><span class="stat-lbl">Questions</span></div>
+      <div><span class="stat-val">3–5</span><span class="stat-lbl">Minutes</span></div>
+      <div><span class="stat-val">80</span><span class="stat-lbl">Max Score</span></div>
+      <div><span class="stat-val">PDF</span><span class="stat-lbl">Instant Report</span></div>
+    </div>
+  </div>
+  <div class="feature-grid">
+    <div class="feat"><span class="feat-icon">📊</span>Scored compliance benchmark</div>
+    <div class="feat"><span class="feat-icon">🤖</span>AI-generated recommendations</div>
+    <div class="feat"><span class="feat-icon">📄</span>Downloadable PDF report</div>
+    <div class="feat"><span class="feat-icon">🔒</span>Audit trail captured</div>
+  </div>
+  <div style="text-align:right;">
+    <button class="btn btn-primary" onclick="go('company')">Begin Assessment →</button>
+  </div>
+</div>
+
+<!-- ═══ COMPANY INFO ═══ -->
+<div class="view" id="view-company">
+  <div class="steps" id="steps-co"></div>
+  <div class="card">
+    <div class="card-head">
+      <div class="eyebrow">Section 01 — Identification</div>
+      <div class="card-title">Company Information</div>
+      <div class="card-desc">Provide your organization's details to personalize your compliance report.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label"><span class="form-code">Q–01</span>Company Name</label>
+      <input class="form-input" id="fc-name" type="text" placeholder="Organization's legal name" autocomplete="organization">
+      <div class="field-err" id="fe-name">Company name is required.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label"><span class="form-code">Q–02</span>Contact Name</label>
+      <input class="form-input" id="fc-contact" type="text" placeholder="Full name of primary contact" autocomplete="name">
+      <div class="field-err" id="fe-contact">Contact name is required.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label"><span class="form-code">Q–03</span>Email Address</label>
+      <input class="form-input" id="fc-email" type="email" placeholder="email@organization.com" autocomplete="email">
+      <div class="field-err" id="fe-email">A valid email address is required.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label"><span class="form-code">Q–04</span>Industry</label>
+      <div class="select-wrap">
+        <select class="form-input select" id="fc-industry">
+          <option value="">Select your industry</option>
+          <option>Broadcaster</option>
+          <option>Manufacturer</option>
+          <option>Telecom Provider</option>
+          <option>Consultant</option>
+          <option>Law Firm</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field-err" id="fe-industry">Please select an industry.</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="go('welcome')">← Back</button>
+      <button class="btn btn-primary" onclick="submitCompany()">Next: Compliance Questions →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ QUESTIONS ═══ -->
+<div class="view" id="view-questions">
+  <div class="steps" id="steps-q"></div>
+  <div class="card">
+    <div class="card-head">
+      <div class="eyebrow">Section 02 — Assessment</div>
+      <div class="card-title">Compliance Questions</div>
+      <div class="card-desc">All questions required. Answer based on your organization's current practices.</div>
+    </div>
+    <div id="q-container"></div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="go('company')">← Back</button>
+      <button class="btn btn-primary" onclick="submitQuestions()">Submit & Generate Report →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PROCESSING ═══ -->
+<div class="view" id="view-processing">
+  <div class="proc-wrap">
+    <div class="proc-track"><div class="proc-bar" id="proc-bar"></div></div>
+    <div class="proc-msg" id="proc-msg">Analyzing responses…</div>
+  </div>
+</div>
+
+<!-- ═══ RESULTS ═══ -->
+<div class="view" id="view-results">
+  <!-- Score instrument -->
+  <div class="instrument">
+    <div class="instr-label">Compliance Score</div>
+    <div class="instr-readout">
+      <div class="instr-score" id="r-score">0</div>
+      <div class="instr-denom">/ 80</div>
+    </div>
+    <div class="gauge-track"><div class="gauge-fill" id="r-gauge"></div></div>
+    <div class="gauge-ticks">
+      <div class="tick"><div class="tick-line"></div><div class="tick-val">0</div></div>
+      <div class="tick"><div class="tick-line"></div><div class="tick-val">20</div></div>
+      <div class="tick"><div class="tick-line"></div><div class="tick-val">40</div></div>
+      <div class="tick"><div class="tick-line"></div><div class="tick-val">60</div></div>
+      <div class="tick"><div class="tick-line"></div><div class="tick-val">80</div></div>
+    </div>
+    <div id="r-badge"></div>
+  </div>
+
+  <!-- AI Analysis -->
+  <div class="card">
+    <div class="card-head">
+      <div class="eyebrow">Section 03 — AI Analysis</div>
+      <div class="card-title">Compliance Assessment</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:8px;">
+        <span style="font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--muted);">Powered by</span>
+        <span style="font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 8px;background:#EBF2FF;color:#2558A8;border-radius:2px;letter-spacing:.04em;">Google Gemini</span>
+        <span id="ai-mode-badge" style="font-family:var(--mono);font-size:10px;color:var(--muted);"></span>
+      </div>
+    </div>
+    <div class="analysis-block">
+      <div class="analysis-hd"><div class="analysis-icon ai-str">✓</div><div class="analysis-title at-str">Strengths</div></div>
+      <div id="r-strengths"></div>
+    </div>
+    <div class="analysis-block">
+      <div class="analysis-hd"><div class="analysis-icon ai-wk">!</div><div class="analysis-title at-wk">Weaknesses</div></div>
+      <div id="r-weaknesses"></div>
+    </div>
+    <div class="analysis-block" style="margin-bottom:0">
+      <div class="analysis-hd"><div class="analysis-icon ai-rc">→</div><div class="analysis-title at-rc">Recommendations</div></div>
+      <div id="r-recos"></div>
+    </div>
+  </div>
+
+  <!-- Detailed findings -->
+  <div class="card">
+    <div class="card-head">
+      <div class="eyebrow">Section 04 — Detailed Findings</div>
+      <div class="card-title">Question-by-Question Review</div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="tbl">
+        <thead><tr>
+          <th style="width:56px">Ref</th>
+          <th>Question</th>
+          <th style="width:86px">Response</th>
+          <th style="width:52px;text-align:center">Pts</th>
+          <th style="width:80px">Risk</th>
+        </tr></thead>
+        <tbody id="r-tbody"></tbody>
+        <tfoot id="r-tfoot"></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- Audit record -->
+  <div class="card">
+    <div class="card-head">
+      <div class="eyebrow">Section 05 — Audit Record</div>
+      <div class="card-title">Submission Log</div>
+    </div>
+    <div class="audit-grid" id="r-audit"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="startOver()">← New Assessment</button>
+    <button class="btn btn-amber" onclick="downloadPDF()">Download PDF Report ↓</button>
+  </div>
+</div>
+
+</main>
+</div><!-- /shell -->
+
+<script>
+const VER = '1.0';
+const GEMINI_KEY = 'AIzaSyATJ5pBBLeVKehBOBNnT7jnAkWikOIg7fE';
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
+
+const SCORE = {Yes:10,Partially:5,Somewhat:5,Sometimes:5,Unsure:0,No:0};
+
+const QS = [
+  {id:'q05',text:'Does your organization maintain written compliance procedures?',opts:['Yes','No','Partially'],
+   f:{Yes:{s:'Formally documented written compliance procedures are in place.'},
+      Partially:{w:'Written compliance procedures exist but are incomplete or inconsistently applied.',r:'Expand and formalize your compliance procedures to cover all applicable FCC regulations, and schedule an annual review cycle.'},
+      No:{w:'No written compliance procedures have been established.',r:'Develop comprehensive written compliance procedures covering all FCC regulatory requirements applicable to your organization and assign ownership for their maintenance.'}}},
+  {id:'q06',text:'Do you track FCC filing deadlines?',opts:['Yes','No','Somewhat'],
+   f:{Yes:{s:'FCC filing deadlines are actively tracked and managed.'},
+      Somewhat:{w:'FCC filing deadline tracking is inconsistent and poses a missed-filing risk.',r:'Implement a compliance calendar with automated reminders for every FCC filing deadline, and designate a responsible owner for each filing category.'},
+      No:{w:'No process exists for tracking FCC filing deadlines, creating significant regulatory exposure.',r:'Establish a centralized FCC deadline calendar with automated alerts, ownership assignments, and a pre-filing review checkpoint for every submission.'}}},
+  {id:'q07',text:'Are compliance responsibilities assigned to specific personnel?',opts:['Yes','No','Partially'],
+   f:{Yes:{s:'Compliance responsibilities are clearly assigned to specific individuals.'},
+      Partially:{w:'Compliance ownership is partially assigned, leaving accountability gaps.',r:'Document a complete compliance responsibility matrix assigning every FCC obligation to a named individual with documented authority and escalation paths.'},
+      No:{w:'No personnel have been formally assigned compliance responsibilities.',r:'Designate a Compliance Officer and create a responsibility matrix assigning FCC obligations to specific individuals, with defined authority, accountability, and absence coverage.'}}},
+  {id:'q08',text:'Have you conducted an FCC compliance review within the last 12 months?',opts:['Yes','No'],
+   f:{Yes:{s:'An FCC compliance review was conducted within the required annual timeframe.'},
+      No:{w:'No FCC compliance review has been conducted in over 12 months.',r:'Schedule an immediate comprehensive FCC compliance review and establish a recurring annual process with documented findings and a corrective action plan.'}}},
+  {id:'q09',text:'Are compliance documents stored in a centralized system?',opts:['Yes','No','Partially'],
+   f:{Yes:{s:'Compliance documents are stored in a centralized, organized system.'},
+      Partially:{w:'Compliance document storage is fragmented, creating retrieval risk during audits.',r:'Consolidate all compliance documents into a single repository with version control, access controls, and a retention schedule aligned with FCC record-keeping requirements.'},
+      No:{w:'No centralized compliance document storage exists, creating significant audit risk.',r:'Implement a compliance document management system with defined folder structure, access controls, version history, and a retention policy meeting FCC requirements.'}}},
+  {id:'q10',text:'Can you produce documentation during an audit within 48 hours?',opts:['Yes','No','Unsure'],
+   f:{Yes:{s:'Audit documentation can be produced within the critical 48-hour window.'},
+      Unsure:{w:'Audit response capability is uncertain — a production failure during an FCC inquiry would be serious.',r:'Conduct an internal audit drill to test 48-hour documentation retrieval, identify gaps, and build an emergency production protocol with a named coordinator.'},
+      No:{w:'Documentation cannot be produced within 48 hours, creating direct audit failure risk.',r:'Implement an indexed compliance document system with an emergency retrieval protocol, designate an audit coordinator, and validate the process with a scheduled drill.'}}},
+  {id:'q11',text:'Are compliance-related communications documented?',opts:['Yes','No','Sometimes'],
+   f:{Yes:{s:'All compliance-related communications are systematically documented.'},
+      Sometimes:{w:'Compliance communication documentation is inconsistent, creating evidentiary gaps.',r:'Implement a mandatory communication logging policy for all compliance-related exchanges, with standardized templates and a central archive accessible to designated compliance personnel.'},
+      No:{w:'Compliance-related communications are not documented, eliminating a critical audit trail.',r:'Establish a communication documentation protocol requiring all compliance-related correspondence to be logged, archived, and retrievable — covering email, meeting notes, and regulatory correspondence.'}}},
+  {id:'q12',text:'Do you have a process for tracking corrective actions?',opts:['Yes','No'],
+   f:{Yes:{s:'A formal corrective action tracking process is in place.'},
+      No:{w:'No corrective action tracking process exists, allowing identified issues to go unresolved.',r:'Implement a corrective action management system that tracks each identified issue with assigned ownership, remediation steps, target dates, and closure verification — integrated with your compliance review cycle.'}}}
+];
+
+// ── STATE ──
+let S = {};
+
+// ── NAVIGATION ──
+const PROG = {welcome:0,company:22,questions:55,processing:82,results:100};
+
+function go(view) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  document.getElementById('progFill').style.width = PROG[view]+'%';
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(view==='company') renderSteps('steps-co','company');
+  if(view==='questions') renderSteps('steps-q','questions');
+}
+
+function renderSteps(elId, active) {
+  const defs = [{k:'company',l:'Company Info'},{k:'questions',l:'Assessment'},{k:'results',l:'Report'}];
+  const order = ['company','questions','results'];
+  const ai = order.indexOf(active);
+  const el = document.getElementById(elId);
+  el.innerHTML = defs.map((d,i)=>{
+    const cls = i<ai?'done':i===ai?'active':'';
+    return `${i>0?'<div class="step-line"></div>':''}
+    <div class="step ${cls}"><div class="step-dot">${i<ai?'✓':i+1}</div>${d.l}</div>`;
+  }).join('');
+}
+
+// ── COMPANY VALIDATION ──
+function submitCompany() {
+  const checks = [
+    {id:'fc-name',   err:'fe-name',   ok:v=>v.trim().length>0},
+    {id:'fc-contact',err:'fe-contact',ok:v=>v.trim().length>0},
+    {id:'fc-email',  err:'fe-email',  ok:v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())},
+    {id:'fc-industry',err:'fe-industry',ok:v=>v!==''}
+  ];
+  let valid = true;
+  checks.forEach(c=>{
+    const el=document.getElementById(c.id), ee=document.getElementById(c.err);
+    const ok=c.ok(el.value);
+    el.classList.toggle('err',!ok);
+    ee.classList.toggle('show',!ok);
+    if(!ok) valid=false;
+  });
+  if(!valid) return;
+  S.company = {
+    name: document.getElementById('fc-name').value.trim(),
+    contact: document.getElementById('fc-contact').value.trim(),
+    email: document.getElementById('fc-email').value.trim(),
+    industry: document.getElementById('fc-industry').value
+  };
+  buildQuestions();
+  go('questions');
+}
+
+// ── BUILD QUESTIONS ──
+function buildQuestions() {
+  document.getElementById('q-container').innerHTML = QS.map(q=>`
+    <div class="q-block" id="qb-${q.id}">
+      <div class="q-head">
+        <div class="q-ref">${q.id.replace('q','Q–')}</div>
+        <div class="q-text">${q.text}</div>
+      </div>
+      <div class="q-opts">
+        ${q.opts.map(o=>`<label class="opt"><input type="radio" name="${q.id}" value="${o}"><span class="opt-lbl">${o}</span></label>`).join('')}
+      </div>
+      <div class="q-err-msg" id="qe-${q.id}">Please select a response.</div>
+    </div>`).join('');
+}
+
+// ── SUBMIT QUESTIONS ──
+function submitQuestions() {
+  let valid = true;
+  const answers = {};
+  QS.forEach(q=>{
+    const sel = document.querySelector(`input[name="${q.id}"]:checked`);
+    const ee = document.getElementById('qe-'+q.id);
+    const bl = document.getElementById('qb-'+q.id);
+    if(!sel){ ee.classList.add('show'); bl.classList.add('q-error'); valid=false; }
+    else    { ee.classList.remove('show'); bl.classList.remove('q-error'); answers[q.id]=sel.value; }
+  });
+  if(!valid){ document.querySelector('.q-error')?.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  S.answers = answers;
+  S.submittedAt = new Date();
+  go('processing');
+  runProcessing();
+}
+
+// ── PROCESSING ──
+const PROC_MSGS = ['Connecting to Gemini AI…','Analyzing compliance posture…','Assessing regulatory risk…','Drafting AI recommendations…','Compiling your report…'];
+
+async function runProcessing() {
+  const lbl = document.getElementById('proc-msg');
+  let i = 0;
+  const iv = setInterval(()=>{ i++; if(PROC_MSGS[i]) lbl.textContent=PROC_MSGS[i]; },500);
+
+  S.score = calcScore();
+  S.risk  = riskProfile(S.score);
+
+  try {
+    S.analysis = await generateAIAnalysis();
+    S.aiPowered = true;
+  } catch(e) {
+    console.warn('Gemini API unavailable, using built-in engine:', e.message);
+    S.analysis = generateFallbackAnalysis();
+    S.aiPowered = false;
+  }
+
+  clearInterval(iv);
+  buildResults();
+  go('results');
+  kickAnimation();
+}
+
+// ── GEMINI AI CALL ──
+async function generateAIAnalysis() {
+  const qLines = QS.map(q=>`  Q: ${q.text}\n  Answer: ${S.answers[q.id]}`).join('\n\n');
+
+  const prompt = `You are a senior FCC regulatory compliance consultant with 20+ years of experience advising broadcasters, telecom providers, and law firms.
+
+Analyze this FCC compliance pre-screening survey for the following organization:
+
+COMPANY: ${S.company.name}
+INDUSTRY: ${S.company.industry}
+COMPLIANCE SCORE: ${S.score}/80 — ${S.risk.label}
+
+SURVEY RESPONSES:
+${qLines}
+
+Provide a professional compliance analysis. Return ONLY a valid JSON object — no markdown, no explanation, no extra text:
+
+{"strengths":["...","..."],"weaknesses":["...","..."],"recommendations":["...","..."]}
+
+Rules:
+- strengths: One item per "Yes" answer. Be specific to what that compliance area means for their industry.
+- weaknesses: One item per non-Yes answer (No, Partially, Somewhat, Sometimes, Unsure). Name the specific FCC risk created.
+- recommendations: One actionable recommendation per weakness. Reference real FCC compliance practices. Start each with an action verb.
+- Write as a professional consultant — specific, authoritative, no generic statements.`;
+
+  const res = await fetch(GEMINI_URL, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      contents: [{parts:[{text: prompt}]}],
+      generationConfig: {temperature:0.4, responseMimeType:'application/json'}
+    })
+  });
+
+  if(!res.ok) {
+    const err = await res.json().catch(()=>({}));
+    throw new Error(err.error?.message || `HTTP ${res.status}`);
+  }
+
+  const data = await res.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if(!text) throw new Error('Empty response from Gemini');
+
+  const parsed = JSON.parse(text);
+  return {
+    str: parsed.strengths     || [],
+    wk:  parsed.weaknesses    || [],
+    rc:  parsed.recommendations || []
+  };
+}
+
+// ── FALLBACK (rule-based) ──
+function generateFallbackAnalysis() {
+  const str=[],wk=[],rc=[];
+  QS.forEach(q=>{
+    const f=q.f[S.answers[q.id]];
+    if(!f) return;
+    if(f.s) str.push(f.s);
+    if(f.w) wk.push(f.w);
+    if(f.r) rc.push(f.r);
+  });
+  return {str,wk,rc};
+}
+
+// ── SCORING ──
+function calcScore() { return QS.reduce((s,q)=>s+(SCORE[S.answers[q.id]]||0),0); }
+
+function riskProfile(score) {
+  if(score>=70) return {label:'Low Risk',cls:'rl-low',desc:'Your organization demonstrates strong FCC compliance practices across most criteria.'};
+  if(score>=50) return {label:'Moderate Risk',cls:'rl-moderate',desc:'A reasonable compliance foundation exists, but identifiable gaps require prompt attention.'};
+  if(score>=30) return {label:'Elevated Risk',cls:'rl-elevated',desc:'Significant compliance gaps are present. Remediation is advised to reduce regulatory exposure.'};
+  return {label:'High Risk',cls:'rl-high',desc:'Critical compliance deficiencies exist. Immediate action is required to address regulatory exposure.'};
+}
+
+function answerRisk(ans) {
+  const p = SCORE[ans]||0;
+  if(p===10) return {l:'Low',c:'dr-low'};
+  if(p===5)  return {l:'Moderate',c:'dr-mod'};
+  return {l:'High',c:'dr-high'};
+}
+
+// ── BUILD RESULTS ──
+function buildResults() {
+  // S.score, S.risk, S.analysis already set by runProcessing()
+
+  // AI mode indicator
+  const badge = document.getElementById('ai-mode-badge');
+  if(badge) badge.textContent = S.aiPowered ? '· Live AI' : '· Built-in engine';
+
+  // Badge
+  document.getElementById('r-badge').innerHTML =
+    `<div class="risk-pill ${S.risk.cls}"><span class="risk-dot"></span>${S.risk.label}</div>`;
+
+  // Analysis sections
+  const none=(t)=>`<div class="finding f-${t}" style="color:var(--muted);font-style:italic;">None identified.</div>`;
+  const str=S.analysis.str, wk=S.analysis.wk, rc=S.analysis.rc;
+  document.getElementById('r-strengths').innerHTML = str.length ? str.map(t=>`<div class="finding f-str">${t}</div>`).join('') : none('str');
+  document.getElementById('r-weaknesses').innerHTML = wk.length ? wk.map(t=>`<div class="finding f-wk">${t}</div>`).join('') : none('wk');
+  document.getElementById('r-recos').innerHTML = rc.length ? rc.map((t,i)=>`<div class="finding f-rc"><strong>${i+1}.</strong> ${t}</div>`).join('') : none('rc');
+
+  // Findings table
+  document.getElementById('r-tbody').innerHTML = QS.map(q=>{
+    const a=S.answers[q.id], p=SCORE[a]||0, r=answerRisk(a);
+    return `<tr>
+      <td class="td-ref">${q.id.replace('q','Q–')}</td>
+      <td style="font-size:13px;">${q.text}</td>
+      <td class="td-ans">${a}</td>
+      <td class="td-pts">${p}</td>
+      <td class="td-risk ${r.c}">${r.l}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('r-tfoot').innerHTML =
+    `<tr class="tbl-foot"><td colspan="3">Total Score</td><td style="text-align:center;">${S.score}</td><td>${S.risk.label}</td></tr>`;
+
+  // Audit record
+  const dt = S.submittedAt;
+  document.getElementById('r-audit').innerHTML = [
+    ['Submission Date', dt.toLocaleString()],
+    ['User',           S.company.contact],
+    ['Email',          S.company.email],
+    ['Company',        S.company.name],
+    ['Industry',       S.company.industry],
+    ['Survey Version', 'v'+VER],
+    ['Score Generated',S.score+' / 80'],
+    ['Risk Level',     S.risk.label]
+  ].map(([k,v])=>`<div class="audit-field"><div class="audit-key">${k}</div><div class="audit-val">${v}</div></div>`).join('');
+
+  saveAudit();
+}
+
+function kickAnimation() {
+  setTimeout(()=>{
+    const pct = (S.score/80)*100;
+    document.getElementById('r-gauge').style.width = pct+'%';
+    // Counter animation
+    const el = document.getElementById('r-score');
+    const dur = 900, start = Date.now(), target = S.score;
+    (function tick(){ const t=Math.min((Date.now()-start)/dur,1), ease=1-Math.pow(1-t,3);
+      el.textContent = Math.round(ease*target);
+      if(t<1) requestAnimationFrame(tick);
+    })();
+  },120);
+}
+
+// ── AUDIT STORAGE ──
+function saveAudit() {
+  try {
+    const rec = JSON.parse(localStorage.getItem('fcc-audit-log')||'[]');
+    rec.push({id:Date.now(), submittedAt:S.submittedAt.toISOString(), company:S.company,
+              version:VER, answers:S.answers, score:S.score, riskLevel:S.risk.label});
+    localStorage.setItem('fcc-audit-log', JSON.stringify(rec));
+  } catch(e){}
+}
+
+// ── PDF / PRINT ──
+function downloadPDF() {
+  const d = S;
+  const date = d.submittedAt.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const time = d.submittedAt.toLocaleString();
+  const pct  = Math.round((d.score/80)*100);
+
+  const riskBg  = {'Low Risk':'#EBF7F0','Moderate Risk':'#FEF6E4','Elevated Risk':'#FDF0E8','High Risk':'#FDF0F0'};
+  const riskFg  = {'Low Risk':'#1A6644','Moderate Risk':'#8A6010','Elevated Risk':'#A04020','High Risk':'#8B1A1A'};
+  const rb = riskBg[d.risk.label]||'#f5f5f5', rf = riskFg[d.risk.label]||'#333';
+
+  const arisk = (a)=>{ const p=SCORE[a]||0; return p===10?{l:'Low',c:'#1A6644'}:p===5?{l:'Moderate',c:'#8A6010'}:{l:'High',c:'#8B1A1A'}; };
+
+  const tableRows = QS.map(q=>{
+    const a=d.answers[q.id], p=SCORE[a]||0, r=arisk(a);
+    return `<tr style="background:${QS.indexOf(q)%2?'#FAFBFD':'#fff'}">
+      <td style="font-family:monospace;font-size:10px;color:#666;padding:8px 10px;border-bottom:1px solid #E8EDF4;">${q.id.replace('q','Q–')}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid #E8EDF4;font-size:13px;">${q.text}</td>
+      <td style="font-family:monospace;font-weight:600;font-size:11px;padding:8px 10px;border-bottom:1px solid #E8EDF4;color:#1A3A6B;">${a}</td>
+      <td style="font-family:monospace;font-weight:700;font-size:13px;padding:8px 10px;border-bottom:1px solid #E8EDF4;color:#0F2444;text-align:center;">${p}</td>
+      <td style="font-family:monospace;font-size:10px;font-weight:700;padding:8px 10px;border-bottom:1px solid #E8EDF4;color:${r.c};text-transform:uppercase;letter-spacing:.05em;">${r.l}</td>
+    </tr>`;
+  }).join('');
+
+  const fitem = (t,cls)=>`<div style="padding:8px 12px;border-left:3px solid ${cls};margin-bottom:7px;font-size:13px;line-height:1.55;">${t}</div>`;
+  const strHtml = d.analysis.str.length ? d.analysis.str.map(t=>fitem(t,'#1A6644')).join('') : '<div style="color:#999;font-style:italic;font-size:13px;">None identified.</div>';
+  const wkHtml  = d.analysis.wk.length  ? d.analysis.wk.map(t=>fitem(t,'#8B1A1A')).join('') : '<div style="color:#999;font-style:italic;font-size:13px;">None identified.</div>';
+  const rcHtml  = d.analysis.rc.length  ? d.analysis.rc.map((t,i)=>fitem(`<strong>${i+1}.</strong> ${t}`,'#2558A8')).join('') : '<div style="color:#999;font-style:italic;font-size:13px;">No recommendations at this time.</div>';
+
+  const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>FCC Compliance Report — ${d.company.name}</title>
+<style>
+@media print{@page{margin:.75in .85in;size:letter;}.no-print{display:none!important;}.pb{page-break-before:always;}}
+body{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;color:#0D1B2E;margin:0;background:#fff;}
+.cover{background:#0F2444;color:#fff;min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:80px 72px;box-sizing:border-box;}
+.cover-eyebrow{font-family:monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#B8821E;margin-bottom:20px;}
+.cover-title{font-size:52px;font-weight:700;letter-spacing:-.03em;line-height:1.05;margin-bottom:14px;}
+.cover-sub{font-size:15px;color:rgba(255,255,255,.55);margin-bottom:48px;}
+.cover-rule{width:48px;height:3px;background:#B8821E;margin-bottom:36px;}
+.cover-row{display:flex;align-items:baseline;gap:20px;margin-bottom:10px;}
+.cover-key{font-family:monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.38);min-width:130px;}
+.cover-val{font-size:14px;font-weight:500;color:#fff;}
+.page{padding:52px 72px;box-sizing:border-box;}
+.sec-eyebrow{font-family:monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#B8821E;margin-bottom:7px;}
+.sec-title{font-size:20px;font-weight:700;letter-spacing:-.02em;color:#0F2444;padding-bottom:12px;border-bottom:1px solid #D0D8E8;margin-bottom:20px;}
+.score-box{display:flex;align-items:center;gap:28px;background:#F4F6FB;border:1px solid #D0D8E8;padding:24px 28px;margin-bottom:20px;}
+.s-num{font-family:monospace;font-size:60px;font-weight:700;color:#0F2444;line-height:1;}
+.s-den{font-family:monospace;font-size:22px;color:#A0AEBF;}
+.s-right{flex:1;}
+.gauge-t{height:7px;background:#E8EDF4;border-radius:2px;overflow:hidden;margin-bottom:10px;}
+.gauge-f{height:100%;background:#B8821E;border-radius:2px;width:${pct}%;}
+.rtag{display:inline-block;padding:6px 14px;font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;background:${rb};color:${rf};}
+.rdesc{font-size:13px;color:#5A6A82;margin-top:8px;line-height:1.5;}
+.ah{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin:18px 0 9px;}
+.ah-s{color:#1A6644;}.ah-w{color:#8B1A1A;}.ah-r{color:#2558A8;}
+table{width:100%;border-collapse:collapse;}
+th{background:#0F2444;color:rgba(255,255,255,.8);padding:9px 10px;text-align:left;font-family:monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;}
+.tf td{background:#1A3A6B!important;color:rgba(255,255,255,.9)!important;font-family:monospace;font-weight:700;font-size:12px;padding:9px 10px;}
+.atbl td{padding:7px 0;border-bottom:1px solid #E8EDF4;font-size:13px;}
+.akey{font-family:monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#5A6A82;min-width:150px;}
+.aval{font-family:monospace;font-weight:600;color:#0F2444;font-size:12px;}
+.footbar{background:#0F2444;color:rgba(255,255,255,.45);font-family:monospace;font-size:10px;padding:14px 72px;display:flex;justify-content:space-between;}
+.no-print{text-align:center;padding:20px;background:#F4F6FB;border-bottom:1px solid #D0D8E8;}
+.no-print button{padding:10px 28px;background:#0F2444;color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;border-radius:3px;}
+.no-print p{font-size:13px;color:#5A6A82;margin-bottom:10px;}
+</style></head><body>
+<div class="no-print"><p>Your PDF report is ready. Click the button below or use your browser's Print → Save as PDF option.</p><button onclick="window.print()">Save as PDF ↓</button></div>
+<div class="cover">
+  <div class="cover-eyebrow">FCC Compliance Report · Survey v${VER}</div>
+  <div class="cover-title">Compliance<br>Readiness<br>Report</div>
+  <div class="cover-sub">Pre-Screening Assessment</div>
+  <div class="cover-rule"></div>
+  <div class="cover-row"><span class="cover-key">Company</span><span class="cover-val">${d.company.name}</span></div>
+  <div class="cover-row"><span class="cover-key">Contact</span><span class="cover-val">${d.company.contact}</span></div>
+  <div class="cover-row"><span class="cover-key">Industry</span><span class="cover-val">${d.company.industry}</span></div>
+  <div class="cover-row"><span class="cover-key">Date</span><span class="cover-val">${date}</span></div>
+  <div class="cover-row"><span class="cover-key">Compliance Score</span><span class="cover-val" style="font-family:monospace;font-size:16px;">${d.score} / 80 &mdash; ${d.risk.label}</span></div>
+</div>
+<div class="page pb">
+  <div class="sec-eyebrow">Section 01 — Summary</div>
+  <div class="sec-title">Compliance Score &amp; Risk Classification</div>
+  <div class="score-box">
+    <div><div style="font-family:monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#5A6A82;margin-bottom:8px;">Score</div>
+    <div style="display:flex;align-items:baseline;gap:8px;"><span class="s-num">${d.score}</span><span class="s-den">/ 80</span></div></div>
+    <div class="s-right"><div class="gauge-t"><div class="gauge-f"></div></div><div class="rtag">${d.risk.label}</div><div class="rdesc">${d.risk.desc}</div></div>
+  </div>
+  <div class="sec-eyebrow" style="margin-top:28px;">Section 02 — AI Analysis</div>
+  <div class="sec-title">Strengths, Weaknesses &amp; Recommendations</div>
+  <div style="font-family:monospace;font-size:9px;color:#999;margin-bottom:12px;letter-spacing:.06em;">${d.aiPowered ? '✦ Analysis generated by Google Gemini AI' : '✦ Analysis generated by built-in compliance engine'}</div>
+  <div class="ah ah-s">Strengths</div>${strHtml}
+  <div class="ah ah-w">Weaknesses</div>${wkHtml}
+  <div class="ah ah-r">Recommendations</div>${rcHtml}
+</div>
+<div class="page pb">
+  <div class="sec-eyebrow">Section 03 — Detailed Findings</div>
+  <div class="sec-title">Question-by-Question Review</div>
+  <table>
+    <thead><tr><th style="width:56px">Ref</th><th>Question</th><th style="width:86px">Response</th><th style="width:48px;text-align:center">Pts</th><th style="width:74px">Risk</th></tr></thead>
+    <tbody>${tableRows}</tbody>
+    <tfoot><tr class="tf"><td colspan="3">Total Score</td><td style="text-align:center;">${d.score}</td><td>${d.risk.label}</td></tr></tfoot>
+  </table>
+  <div class="sec-eyebrow" style="margin-top:32px;">Section 04 — Audit Record</div>
+  <div class="sec-title">Submission Log</div>
+  <table class="atbl"><tbody>
+    ${[['Submission Date',time],['User',d.company.contact],['Email',d.company.email],
+       ['Company',d.company.name],['Industry',d.company.industry],['Survey Version','v'+VER],
+       ['Score Generated',d.score+' / 80'],['Risk Level',d.risk.label]]
+      .map(([k,v])=>`<tr><td class="akey">${k}</td><td class="aval">${v}</td></tr>`).join('')}
+  </tbody></table>
+</div>
+<div class="footbar"><span>Confidential — ${d.company.name}</span><span>FCC Compliance Readiness Survey v${VER}</span><span>${date}</span></div>
+</body></html>`;
+
+  const win = window.open('','_blank');
+  if(win){ win.document.write(html); win.document.close(); }
+  else alert('Please allow pop-ups for this page to download the PDF report.');
+}
+
+// ── UTILITIES ──
+function startOver() {
+  S = {};
+  ['fc-name','fc-contact','fc-email'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fc-industry').value='';
+  go('welcome');
+}
+
+// init
+go('welcome');
+</script>
+</body>
+</html>
