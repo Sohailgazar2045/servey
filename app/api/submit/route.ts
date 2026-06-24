@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import OpenAI from 'openai'
 import { put, list } from '@vercel/blob'
 import { promises as fs } from 'fs'
 import path from 'path'
@@ -80,22 +80,13 @@ export async function POST(req: NextRequest) {
     const risk = getRisk(score)
 
     // ── AI analysis ──────────────────────────────────────────────────────
-    let analysis = {
-      strengths:       [] as string[],
-      weaknesses:      [] as string[],
-      recommendations: [] as string[],
-    }
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
-    const apiKey = process.env.GEMINI_API_KEY
-    if (apiKey) {
-      try {
-        const genAI = new GoogleGenerativeAI(apiKey)
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
-        const answerBlock = scoredAnswers
-          .map((a, i) => `Q${i + 1}: ${a.question}\nAnswer: ${a.answer} (${a.points} pts)`)
-          .join('\n\n')
+    const answerBlock = scoredAnswers
+      .map((a, i) => `Q${i + 1}: ${a.question}\nAnswer: ${a.answer} (${a.points} pts)`)
+      .join('\n\n')
 
-        const prompt =
+    const prompt =
 `You are an FCC regulatory compliance expert. Analyze this ${industry} company's readiness survey.
 
 Company: ${companyName}
@@ -116,16 +107,13 @@ Guidelines:
 - recommendations (3): actionable, prioritized steps; 1–2 sentences each
 - If all answers are Yes, highlight the strong posture and suggest sustaining practices`
 
-        const result = await model.generateContent(prompt)
-        const raw = result.response.text().trim()
-        analysis = JSON.parse(raw)
-      } catch (aiErr) {
-        console.error('AI error (using fallback):', aiErr)
-        analysis = buildFallback(scoredAnswers, industry)
-      }
-    } else {
-      analysis = buildFallback(scoredAnswers, industry)
-    }
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      response_format: { type: 'json_object' },
+    })
+
+    const analysis = JSON.parse(completion.choices[0].message.content ?? '{}')
 
     // ── Audit record ─────────────────────────────────────────────────────
     const submissionDate = new Date().toISOString()
@@ -171,33 +159,4 @@ Guidelines:
     console.error('Submit route error:', err)
     return NextResponse.json({ error: 'An error occurred. Please try again.' }, { status: 500 })
   }
-}
-
-// Rule-based fallback when no API key or AI call fails
-function buildFallback(
-  scoredAnswers: { question: string; answer: string; points: number }[],
-  industry: string,
-) {
-  const yesItems  = scoredAnswers.filter(a => a.points === 10)
-  const gapItems  = scoredAnswers.filter(a => a.points < 10)
-
-  const strengths = yesItems.slice(0, 3).map(a =>
-    `Your organization has confirmed: "${a.question}" — a strong baseline for FCC compliance.`
-  )
-  if (!strengths.length)
-    strengths.push(`Your ${industry} organization has taken the first step by completing this compliance assessment.`)
-
-  const weaknesses = gapItems.slice(0, 3).map(a =>
-    `Response to "${a.question}" indicates a compliance gap that should be addressed.`
-  )
-  if (!weaknesses.length)
-    weaknesses.push('No significant weaknesses identified based on your responses.')
-
-  const recommendations = [
-    'Develop or formalize written FCC compliance procedures and assign ownership to a designated compliance officer.',
-    'Establish a centralized document management system with version control to store all compliance records.',
-    'Schedule a formal FCC compliance review every 12 months and document findings with corrective action plans.',
-  ]
-
-  return { strengths, weaknesses, recommendations }
 }

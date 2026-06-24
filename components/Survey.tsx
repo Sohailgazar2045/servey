@@ -223,6 +223,8 @@ export default function Survey() {
   const [result,     setResult]     = useState<ResultPayload | null>(null)
   const [errors,     setErrors]     = useState<Record<string, string>>({})
   const [serverErr,  setServerErr]  = useState('')
+  const [pdfErr,     setPdfErr]     = useState('')
+  const [pdfLoading, setPdfLoading] = useState(false)
   const resultsRef = useRef<HTMLDivElement>(null)
 
   const answeredCount = Object.keys(answers).length
@@ -285,9 +287,17 @@ export default function Survey() {
 
   async function handleDownloadPDF() {
     if (!result) return
-    const { generatePDF } = await import('@/lib/generatePDF')
-    const payload: PDFData = { ...form, ...result }
-    await generatePDF(payload)
+    setPdfErr('')
+    setPdfLoading(true)
+    try {
+      const { generatePDF } = await import('@/lib/generatePDF')
+      const payload: PDFData = { ...form, ...result }
+      await generatePDF(payload)
+    } catch (err) {
+      setPdfErr(err instanceof Error ? err.message : 'Failed to generate PDF')
+    } finally {
+      setPdfLoading(false)
+    }
   }
 
   function handleReset() {
@@ -382,19 +392,23 @@ export default function Survey() {
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={handleDownloadPDF}
-              className="flex-1 inline-flex items-center justify-center gap-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-6 rounded-xl transition-colors duration-150"
+              disabled={pdfLoading}
+              className="flex-1 inline-flex items-center justify-center gap-2.5 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white font-bold py-3.5 px-6 rounded-xl transition-colors duration-150"
             >
               <Download className="w-4 h-4" />
-              Download PDF Report
+              {pdfLoading ? 'Generating…' : 'Download PDF Report'}
             </button>
             <button
               onClick={handleReset}
               className="inline-flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900 font-semibold py-3.5 px-5 rounded-xl border border-slate-200 hover:border-slate-300 transition-colors duration-150"
             >
               <RotateCcw className="w-4 h-4" />
-              New Assessment
+              New Survey
             </button>
           </div>
+          {pdfErr && (
+            <p className="mt-3 text-red-500 text-sm text-center">{pdfErr}</p>
+          )}
         </div>
 
         {/* Audit record */}
