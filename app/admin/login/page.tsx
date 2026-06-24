@@ -37,18 +37,24 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-navy flex items-center justify-center px-4 font-sans">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen bg-brand-navy hero-grid flex items-center justify-center px-4 font-sans">
 
-        {/* Logo */}
-        <div className="flex items-center justify-center gap-2.5 mb-10">
-          <Shield className="w-6 h-6 text-blue-400" />
-          <span className="text-white font-semibold text-lg tracking-tight">ComplianceIQ</span>
-        </div>
+      {/* Radial glows */}
+      <div className="fixed -top-40 -left-40 w-[600px] h-[600px] bg-blue-700/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="fixed bottom-0 right-0 w-[400px] h-[400px] bg-blue-600/8 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="relative w-full max-w-sm">
+
+        {/* Logo — matches Navbar */}
+        <a href="/" className="flex items-center justify-center gap-2.5 mb-10 group">
+          <Shield className="w-6 h-6 text-blue-400 group-hover:text-blue-300 transition-colors" />
+          <span className="text-white font-semibold text-[17px] tracking-tight">ComplianceIQ</span>
+        </a>
 
         {/* Card */}
-        <div className="bg-brand-navy-mid border border-white/8 rounded-2xl p-8">
-          <div className="flex items-center justify-center w-11 h-11 bg-blue-500/10 rounded-xl mb-6 mx-auto">
+        <div className="bg-brand-navy-mid border border-white/8 rounded-2xl p-8 shadow-2xl shadow-black/40">
+
+          <div className="flex items-center justify-center w-11 h-11 bg-blue-500/10 border border-blue-500/20 rounded-xl mb-6 mx-auto">
             <Lock className="w-5 h-5 text-blue-400" />
           </div>
 
@@ -83,7 +89,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading || !password}
-              className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold py-3 rounded-lg transition-colors"
+              className="w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold py-3 rounded-lg transition-colors duration-150"
             >
               {loading ? 'Verifying…' : 'Sign In'}
             </button>
@@ -91,7 +97,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center mt-6">
-          <a href="/" className="text-slate-500 hover:text-slate-300 text-sm transition-colors">
+          <a href="/" className="text-slate-500 hover:text-slate-300 text-sm transition-colors duration-150">
             ← Back to site
           </a>
         </p>
