@@ -1,16 +1,11 @@
 import { Suspense } from 'react'
-import { list } from '@vercel/blob'
-import { promises as fs } from 'fs'
-import path from 'path'
 import { Shield, Users, BarChart2, AlertTriangle, CheckCircle, BarChart3, Building2, Lightbulb } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 import AdminTable, { type Submission } from './AdminTable'
 import LogoutButton from './LogoutButton'
 import AIInsights from './AIInsights'
 
 export const dynamic = 'force-dynamic'
-
-const BLOB_KEY  = 'audit-log.json'
-const LOCAL_LOG = path.join(process.cwd(), 'audit-log.json')
 
 const QUESTIONS_SHORT = [
   'Written procedures',
@@ -24,21 +19,33 @@ const QUESTIONS_SHORT = [
 ]
 
 async function getSubmissions(): Promise<Submission[]> {
-  try {
-    let data: Submission[]
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
-      const { blobs } = await list({ prefix: BLOB_KEY })
-      if (!blobs.length) return []
-      const res = await fetch(blobs[0].downloadUrl, { cache: 'no-store' })
-      data = await res.json()
-    } else {
-      const raw = await fs.readFile(LOCAL_LOG, 'utf8')
-      data = JSON.parse(raw)
-    }
-    return data.slice().reverse()
-  } catch {
+  const { data, error, count } = await supabase
+    .from('survey_submissions')
+    .select('*', { count: 'exact' })
+    .order('submission_date', { ascending: false })
+
+  if (error) {
+    console.error('Supabase fetch error:', error.message, error.details, error.hint)
     return []
   }
+
+  console.log(`Supabase returned ${data?.length ?? 0} rows (count: ${count})`)
+
+  return (data ?? []).map(row => ({
+    id:             row.id,
+    surveyVersion:  row.survey_version,
+    submissionDate: row.submission_date,
+    scoreGenerated: row.score_generated,
+    companyName:    row.company_name,
+    contactName:    row.contact_name,
+    user:           row.email,
+    industry:       row.industry,
+    responses:      row.responses,
+    score:          row.score,
+    maxScore:       row.max_score,
+    riskLevel:      row.risk_level,
+    analysis:       row.analysis ?? null,
+  }))
 }
 
 function AIInsightsSkeleton() {
@@ -66,7 +73,7 @@ export default async function AdminPage() {
   const moderate = submissions.filter(s => s.riskLevel === 'Moderate Risk').length
   const high     = submissions.filter(s => s.riskLevel === 'High Risk').length
 
-  // Question performance (pass / partial / fail per question)
+  // Question performance
   const questionStats = QUESTIONS_SHORT.map((label, i) => {
     if (!total) return { label, passPct: 0, partialPct: 0, failPct: 0 }
     const responses = submissions.map(s => s.responses?.[i]).filter(Boolean)
@@ -101,8 +108,6 @@ export default async function AdminPage() {
 
   return (
     <div className="min-h-screen bg-brand-navy hero-grid font-sans">
-
-      {/* Radial glows */}
       <div className="fixed -top-40 -left-40 w-[600px] h-[600px] bg-blue-700/10 rounded-full blur-3xl pointer-events-none" />
       <div className="fixed bottom-0 right-0 w-[400px] h-[400px] bg-blue-600/8 rounded-full blur-3xl pointer-events-none" />
 
@@ -116,9 +121,7 @@ export default async function AdminPage() {
             <span className="text-slate-400 text-sm">Admin</span>
           </a>
           <div className="flex items-center gap-5">
-            <a href="/" className="text-slate-400 hover:text-white text-sm font-medium transition-colors duration-150">
-              ← Back to site
-            </a>
+            <a href="/" className="text-slate-400 hover:text-white text-sm font-medium transition-colors duration-150">← Back to site</a>
             <LogoutButton />
           </div>
         </div>
@@ -134,20 +137,15 @@ export default async function AdminPage() {
           </div>
           <h1 className="text-white text-3xl font-bold tracking-tight">
             Survey{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-sky-300">
-              Submissions
-            </span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-sky-300">Submissions</span>
           </h1>
-          <p className="text-slate-400 text-sm mt-2">All responses recorded in the audit log</p>
+          <p className="text-slate-400 text-sm mt-2">All data loaded from Supabase</p>
         </div>
 
         {/* Stat cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {stats.map(({ label, value, Icon, color, bg, border }) => (
-            <div
-              key={label}
-              className="bg-brand-navy-mid border border-white/8 rounded-xl p-5 hover:border-white/15 transition-colors duration-200"
-            >
+            <div key={label} className="bg-brand-navy-mid border border-white/8 rounded-xl p-5 hover:border-white/15 transition-colors duration-200">
               <div className={`w-9 h-9 ${bg} border ${border} rounded-lg flex items-center justify-center mb-4`}>
                 <Icon className={`w-[18px] h-[18px] ${color}`} />
               </div>
@@ -157,14 +155,14 @@ export default async function AdminPage() {
           ))}
         </div>
 
-        {/* AI Insights — streamed */}
+        {/* AI Dashboard Insights — streamed, one-time call using aggregate data */}
         {total > 0 && (
           <Suspense fallback={<AIInsightsSkeleton />}>
             <AIInsights submissions={submissions} />
           </Suspense>
         )}
 
-        {/* Analytics — Question Performance + Industry Breakdown */}
+        {/* Analytics */}
         {total > 0 && (
           <div className="grid md:grid-cols-2 gap-4 mb-8">
 
@@ -187,9 +185,9 @@ export default async function AdminPage() {
                       <span className="text-slate-500 text-xs tabular-nums">{passPct}% pass</span>
                     </div>
                     <div className="h-1.5 bg-white/8 rounded-full overflow-hidden flex">
-                      <div className="h-full bg-emerald-500 rounded-l-full" style={{ width: `${passPct}%` }} />
-                      <div className="h-full bg-amber-500" style={{ width: `${partialPct}%` }} />
-                      <div className="h-full bg-red-500 rounded-r-full" style={{ width: `${failPct}%` }} />
+                      <div className="h-full bg-emerald-500" style={{ width: `${passPct}%` }} />
+                      <div className="h-full bg-amber-500"   style={{ width: `${partialPct}%` }} />
+                      <div className="h-full bg-red-500"     style={{ width: `${failPct}%` }} />
                     </div>
                   </div>
                 ))}
@@ -242,7 +240,7 @@ export default async function AdminPage() {
           </div>
         )}
 
-        {/* Divider */}
+        {/* Submissions table */}
         {total > 0 && (
           <div className="flex items-center gap-4 mb-6">
             <div className="flex items-center gap-2 text-slate-400 text-xs font-semibold uppercase tracking-widest">
@@ -253,7 +251,6 @@ export default async function AdminPage() {
           </div>
         )}
 
-        {/* Table */}
         <AdminTable submissions={submissions} />
       </div>
     </div>

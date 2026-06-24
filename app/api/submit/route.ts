@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
-import { put, list } from '@vercel/blob'
-import { promises as fs } from 'fs'
-import path from 'path'
+import { supabase } from '@/lib/supabase'
 
 const SURVEY_VERSION = '1.0'
-const BLOB_KEY = 'audit-log.json'
-const LOCAL_LOG = path.join(process.cwd(), 'audit-log.json')
 
 const QUESTIONS = [
   'Does your organization maintain written compliance procedures?',
@@ -30,36 +26,6 @@ function getRisk(score: number) {
   return               { level: 'High Risk',        badge: 'high',     color: '#EF4444' }
 }
 
-const useBlob = () => !!process.env.BLOB_READ_WRITE_TOKEN
-
-async function readLog(): Promise<unknown[]> {
-  try {
-    if (useBlob()) {
-      const { blobs } = await list({ prefix: BLOB_KEY })
-      if (!blobs.length) return []
-      const res = await fetch(blobs[0].downloadUrl)
-      return await res.json()
-    } else {
-      const raw = await fs.readFile(LOCAL_LOG, 'utf8')
-      return JSON.parse(raw)
-    }
-  } catch {
-    return []
-  }
-}
-
-async function writeLog(log: unknown[]) {
-  if (useBlob()) {
-    await put(BLOB_KEY, JSON.stringify(log, null, 2), {
-      access: 'public',
-      contentType: 'application/json',
-      allowOverwrite: true,
-    })
-  } else {
-    await fs.writeFile(LOCAL_LOG, JSON.stringify(log, null, 2))
-  }
-}
-
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
@@ -70,6 +36,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
+    // ── Score ─────────────────────────────────────────────────────────────
     let score = 0
     const scoredAnswers = (answers as string[]).map((answer, i) => {
       const pts = SCORE_MAP[answer.toLowerCase()] ?? 0
@@ -79,7 +46,7 @@ export async function POST(req: NextRequest) {
 
     const risk = getRisk(score)
 
-    // ── AI analysis ──────────────────────────────────────────────────────
+    // ── AI analysis ───────────────────────────────────────────────────────
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
     const answerBlock = scoredAnswers
@@ -94,7 +61,7 @@ Score: ${score}/80 — ${risk.level}
 
 ${answerBlock}
 
-Return ONLY valid JSON (no markdown fences, no commentary) with this exact shape:
+Return ONLY valid JSON with this exact shape:
 {
   "strengths":       ["string", "string"],
   "weaknesses":      ["string", "string"],
@@ -108,47 +75,59 @@ Guidelines:
 - If all answers are Yes, highlight the strong posture and suggest sustaining practices`
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: prompt }],
+      model:           'gpt-4o-mini',
+      messages:        [{ role: 'user', content: prompt }],
       response_format: { type: 'json_object' },
     })
 
     const analysis = JSON.parse(completion.choices[0].message.content ?? '{}')
 
-    // ── Audit record ─────────────────────────────────────────────────────
+    // ── Build record ──────────────────────────────────────────────────────
     const submissionDate = new Date().toISOString()
     const scoreGenerated = new Date().toLocaleString('en-US', {
       year: 'numeric', month: 'long', day: 'numeric',
       hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
     })
+    const id = crypto.randomUUID()
+
+    // ── Save to Supabase ──────────────────────────────────────────────────
+    const { error: dbError } = await supabase.from('survey_submissions').insert({
+      id,
+      survey_version:  SURVEY_VERSION,
+      submission_date: submissionDate,
+      score_generated: scoreGenerated,
+      company_name:    companyName,
+      contact_name:    contactName,
+      email,
+      industry,
+      responses:       scoredAnswers,
+      score,
+      max_score:       80,
+      risk_level:      risk.level,
+      analysis,
+    })
+
+    if (dbError) console.error('Supabase insert error:', dbError)
 
     const auditRecord = {
-      id: String(Date.now()),
-      surveyVersion: SURVEY_VERSION,
+      id,
+      surveyVersion:  SURVEY_VERSION,
       submissionDate,
       scoreGenerated,
       companyName,
       contactName,
-      user: email,
+      user:           email,
       industry,
-      responses: scoredAnswers,
+      responses:      scoredAnswers,
       score,
-      maxScore: 80,
-      riskLevel: risk.level,
-    }
-
-    try {
-      const log = await readLog()
-      log.push(auditRecord)
-      await writeLog(log)
-    } catch (logErr) {
-      console.error('Audit log write failed (non-fatal):', logErr)
+      maxScore:       80,
+      riskLevel:      risk.level,
     }
 
     return NextResponse.json({
-      success: true,
+      success:    true,
       score,
-      maxScore: 80,
+      maxScore:   80,
       riskLevel:  risk.level,
       riskBadge:  risk.badge,
       riskColor:  risk.color,

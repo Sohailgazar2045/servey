@@ -1,32 +1,31 @@
 'use client'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import {
   Clock, ChevronDown, ChevronUp, ClipboardList,
-  CheckCircle2, AlertTriangle, Lightbulb, Loader2,
+  CheckCircle2, AlertTriangle, Lightbulb,
 } from 'lucide-react'
 
 type Response = { question: string; answer: string; points: number }
-export type Submission = {
-  id: string
-  surveyVersion: string
-  submissionDate: string
-  scoreGenerated: string
-  companyName: string
-  contactName: string
-  user: string
-  industry: string
-  responses: Response[]
-  score: number
-  maxScore: number
-  riskLevel: string
-}
-
 type Analysis = {
   strengths:       string[]
   weaknesses:      string[]
   recommendations: string[]
 }
-type InsightState = Analysis | 'loading' | 'error'
+export type Submission = {
+  id:             string
+  surveyVersion:  string
+  submissionDate: string
+  scoreGenerated: string
+  companyName:    string
+  contactName:    string
+  user:           string
+  industry:       string
+  responses:      Response[]
+  score:          number
+  maxScore:       number
+  riskLevel:      string
+  analysis:       Analysis | null
+}
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
@@ -56,72 +55,9 @@ function ScoreBar({ score, max }: { score: number; max: number }) {
   )
 }
 
-function AnalysisSection({ analysis }: { analysis: Analysis }) {
-  const sections = [
-    {
-      key:   'strengths',
-      label: 'Strengths',
-      items: analysis.strengths,
-      Icon:  CheckCircle2,
-      headerCls: 'bg-emerald-500/10 border-b border-emerald-500/15',
-      titleCls:  'text-emerald-400',
-      iconBg:    'bg-emerald-500/10 border border-emerald-500/20',
-      dotCls:    'bg-emerald-500/15 border border-emerald-500/25 text-emerald-400',
-      textCls:   'text-slate-300',
-    },
-    {
-      key:   'weaknesses',
-      label: 'Weaknesses',
-      items: analysis.weaknesses,
-      Icon:  AlertTriangle,
-      headerCls: 'bg-red-500/10 border-b border-red-500/15',
-      titleCls:  'text-red-400',
-      iconBg:    'bg-red-500/10 border border-red-500/20',
-      dotCls:    'bg-red-500/15 border border-red-500/25 text-red-400',
-      textCls:   'text-slate-300',
-    },
-    {
-      key:   'recommendations',
-      label: 'Recommendations',
-      items: analysis.recommendations,
-      Icon:  Lightbulb,
-      headerCls: 'bg-blue-500/10 border-b border-blue-500/15',
-      titleCls:  'text-blue-400',
-      iconBg:    'bg-blue-500/10 border border-blue-500/20',
-      dotCls:    'bg-blue-500/15 border border-blue-500/25 text-blue-400',
-      textCls:   'text-slate-300',
-    },
-  ]
-
-  return (
-    <div className="grid md:grid-cols-3 gap-3">
-      {sections.map(({ key, label, items, Icon, headerCls, titleCls, iconBg, dotCls, textCls }) => (
-        <div key={key} className="bg-brand-navy border border-white/8 rounded-xl overflow-hidden">
-          <div className={`flex items-center gap-2.5 px-4 py-3 ${headerCls}`}>
-            <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${iconBg}`}>
-              <Icon className={`w-3.5 h-3.5 ${titleCls}`} />
-            </div>
-            <span className={`text-xs font-semibold ${titleCls}`}>{label}</span>
-          </div>
-          <div className="px-4 py-3 space-y-2.5">
-            {items?.map((item, i) => (
-              <div key={i} className="flex items-start gap-2.5">
-                <span className={`w-4 h-4 shrink-0 rounded-full flex items-center justify-center text-[9px] font-bold mt-0.5 ${dotCls}`}>
-                  {i + 1}
-                </span>
-                <p className={`text-[12px] leading-relaxed ${textCls}`}>{item}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
-
 function ScoreSummary({ s }: { s: Submission }) {
   const pct = Math.round((s.score / s.maxScore) * 100)
-  const riskColor = {
+  const rc  = {
     'Low Risk':      { bar: 'bg-emerald-500', text: 'text-emerald-400' },
     'Moderate Risk': { bar: 'bg-amber-500',   text: 'text-amber-400'   },
     'High Risk':     { bar: 'bg-red-500',      text: 'text-red-400'     },
@@ -130,16 +66,16 @@ function ScoreSummary({ s }: { s: Submission }) {
   return (
     <div className="flex flex-wrap items-center gap-6 bg-brand-navy rounded-xl border border-white/8 px-5 py-4">
       <div className="text-center min-w-[60px]">
-        <p className={`text-3xl font-bold ${riskColor.text}`}>{s.score}</p>
+        <p className={`text-3xl font-bold ${rc.text}`}>{s.score}</p>
         <p className="text-slate-500 text-xs mt-0.5">out of {s.maxScore}</p>
       </div>
       <div className="flex-1 min-w-[120px]">
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-slate-400 text-xs">Compliance Score</span>
-          <span className={`text-xs font-bold ${riskColor.text}`}>{pct}%</span>
+          <span className={`text-xs font-bold ${rc.text}`}>{pct}%</span>
         </div>
         <div className="h-2 bg-white/8 rounded-full overflow-hidden">
-          <div className={`h-full rounded-full ${riskColor.bar}`} style={{ width: `${pct}%` }} />
+          <div className={`h-full rounded-full ${rc.bar}`} style={{ width: `${pct}%` }} />
         </div>
       </div>
       <RiskBadge level={s.riskLevel} />
@@ -151,38 +87,78 @@ function ScoreSummary({ s }: { s: Submission }) {
   )
 }
 
+function AnalysisPanel({ analysis }: { analysis: Analysis }) {
+  const sections = [
+    {
+      key:       'strengths',
+      label:     'Strengths',
+      items:     analysis.strengths,
+      Icon:      CheckCircle2,
+      headerCls: 'bg-emerald-500/10 border-b border-emerald-500/15',
+      titleCls:  'text-emerald-400',
+      iconBg:    'bg-emerald-500/10 border border-emerald-500/20',
+      dotCls:    'bg-emerald-500/15 border border-emerald-500/25 text-emerald-400',
+    },
+    {
+      key:       'weaknesses',
+      label:     'Weaknesses',
+      items:     analysis.weaknesses,
+      Icon:      AlertTriangle,
+      headerCls: 'bg-red-500/10 border-b border-red-500/15',
+      titleCls:  'text-red-400',
+      iconBg:    'bg-red-500/10 border border-red-500/20',
+      dotCls:    'bg-red-500/15 border border-red-500/25 text-red-400',
+    },
+    {
+      key:       'recommendations',
+      label:     'Recommendations',
+      items:     analysis.recommendations,
+      Icon:      Lightbulb,
+      headerCls: 'bg-blue-500/10 border-b border-blue-500/15',
+      titleCls:  'text-blue-400',
+      iconBg:    'bg-blue-500/10 border border-blue-500/20',
+      dotCls:    'bg-blue-500/15 border border-blue-500/25 text-blue-400',
+    },
+  ]
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2 px-1">
+        <Lightbulb className="w-3.5 h-3.5 text-blue-400" />
+        <span className="text-blue-400 text-xs font-semibold uppercase tracking-widest">AI Analysis</span>
+      </div>
+      <div className="grid md:grid-cols-3 gap-3">
+        {sections.map(({ key, label, items, Icon, headerCls, titleCls, iconBg, dotCls }) => (
+          <div key={key} className="bg-brand-navy border border-white/8 rounded-xl overflow-hidden">
+            <div className={`flex items-center gap-2.5 px-4 py-3 ${headerCls}`}>
+              <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${iconBg}`}>
+                <Icon className={`w-3.5 h-3.5 ${titleCls}`} />
+              </div>
+              <span className={`text-xs font-semibold ${titleCls}`}>{label}</span>
+            </div>
+            <div className="px-4 py-3 space-y-2.5">
+              {items?.map((item, i) => (
+                <div key={i} className="flex items-start gap-2.5">
+                  <span className={`w-4 h-4 shrink-0 rounded-full flex items-center justify-center text-[9px] font-bold mt-0.5 ${dotCls}`}>
+                    {i + 1}
+                  </span>
+                  <p className="text-slate-300 text-[12px] leading-relaxed">{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 export default function AdminTable({ submissions }: { submissions: Submission[] }) {
   const [expanded, setExpanded] = useState<string | null>(null)
-  const [insights, setInsights] = useState<Record<string, InsightState>>({})
 
-  async function toggleRow(s: Submission) {
-    if (expanded === s.id) { setExpanded(null); return }
-    setExpanded(s.id)
-    if (insights[s.id]) return
-
-    setInsights(prev => ({ ...prev, [s.id]: 'loading' }))
-    try {
-      const res  = await fetch('/api/admin/insights', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({
-          companyName: s.companyName,
-          industry:    s.industry,
-          score:       s.score,
-          maxScore:    s.maxScore,
-          riskLevel:   s.riskLevel,
-          responses:   s.responses,
-        }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
-      setInsights(prev => ({ ...prev, [s.id]: data as Analysis }))
-    } catch {
-      setInsights(prev => ({ ...prev, [s.id]: 'error' }))
-    }
-  }
+  const toggle = (id: string) => setExpanded(prev => prev === id ? null : id)
 
   if (submissions.length === 0) {
     return (
@@ -214,16 +190,14 @@ export default function AdminTable({ submissions }: { submissions: Submission[] 
           </thead>
           <tbody>
             {submissions.map((s, i) => {
-              const isOpen   = expanded === s.id
-              const isLast   = i === submissions.length - 1
-              const insight  = insights[s.id]
+              const isOpen = expanded === s.id
+              const isLast = i === submissions.length - 1
 
               return (
-                <>
+                <React.Fragment key={`row-${i}`}>
                   <tr
-                    key={s.id}
                     className={`${!isOpen && !isLast ? 'border-b border-white/5' : ''} hover:bg-white/[0.03] transition-colors duration-150 cursor-pointer`}
-                    onClick={() => toggleRow(s)}
+                    onClick={() => toggle(s.id)}
                   >
                     <td className="px-5 py-4">
                       <p className="text-white font-semibold">{s.companyName}</p>
@@ -243,7 +217,7 @@ export default function AdminTable({ submissions }: { submissions: Submission[] 
                     </td>
                     <td className="px-5 py-4">
                       <button
-                        onClick={e => { e.stopPropagation(); toggleRow(s) }}
+                        onClick={e => { e.stopPropagation(); toggle(s.id) }}
                         className="text-slate-500 hover:text-blue-400 transition-colors duration-150"
                         aria-label="Toggle detail"
                       >
@@ -252,45 +226,26 @@ export default function AdminTable({ submissions }: { submissions: Submission[] 
                     </td>
                   </tr>
 
-                  {/* ── Expanded detail ── */}
                   {isOpen && (
-                    <tr key={`${s.id}-detail`} className={!isLast ? 'border-b border-white/5' : ''}>
+                    <tr className={!isLast ? 'border-b border-white/5' : ''}>
                       <td colSpan={7} className="px-5 pb-6 pt-2">
                         <div className="space-y-3">
 
-                          {/* Score summary */}
                           <ScoreSummary s={s} />
 
-                          {/* AI Analysis */}
-                          {insight === 'loading' && (
-                            <div className="flex items-center gap-3 bg-brand-navy border border-white/8 rounded-xl px-5 py-4">
-                              <Loader2 className="w-4 h-4 text-blue-400 animate-spin shrink-0" />
-                              <p className="text-slate-400 text-sm">Generating AI analysis…</p>
-                            </div>
-                          )}
-
-                          {insight === 'error' && (
-                            <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-5 py-4">
-                              <p className="text-red-400 text-sm">Failed to generate AI insights. Try collapsing and expanding again.</p>
-                            </div>
-                          )}
-
-                          {insight && insight !== 'loading' && insight !== 'error' && (
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2 px-1">
-                                <Lightbulb className="w-3.5 h-3.5 text-blue-400" />
-                                <span className="text-blue-400 text-xs font-semibold uppercase tracking-widest">AI Analysis</span>
+                          {s.analysis
+                            ? <AnalysisPanel analysis={s.analysis} />
+                            : (
+                              <div className="bg-brand-navy border border-white/8 rounded-xl px-5 py-4">
+                                <p className="text-slate-500 text-sm">No AI analysis stored for this submission.</p>
                               </div>
-                              <AnalysisSection analysis={insight} />
-                            </div>
-                          )}
+                            )
+                          }
 
                           {/* Question Responses */}
                           <div className="bg-brand-navy border border-white/8 rounded-xl overflow-hidden">
                             <div className="px-4 py-3 border-b border-white/8">
-                              <p className="text-slate-400 text-xs font-semibold uppercase tracking-widest">
-                                Question Responses
-                              </p>
+                              <p className="text-slate-400 text-xs font-semibold uppercase tracking-widest">Question Responses</p>
                             </div>
                             <div className="divide-y divide-white/5">
                               {s.responses.map((r, qi) => (
@@ -301,27 +256,23 @@ export default function AdminTable({ submissions }: { submissions: Submission[] 
                                     <span className="text-slate-300 text-xs capitalize">{r.answer}</span>
                                     <span className={`text-xs font-bold tabular-nums w-8 text-right ${
                                       r.points === 10 ? 'text-emerald-400' : r.points === 5 ? 'text-amber-400' : 'text-red-400'
-                                    }`}>
-                                      +{r.points}
-                                    </span>
+                                    }`}>+{r.points}</span>
                                   </div>
                                 </div>
                               ))}
                             </div>
                           </div>
 
-                          {/* Metadata */}
                           <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-slate-600 px-1">
                             <span>ID: {s.id}</span>
                             <span>v{s.surveyVersion}</span>
                             <span>{s.scoreGenerated}</span>
                           </div>
-
                         </div>
                       </td>
                     </tr>
                   )}
-                </>
+                </React.Fragment>
               )
             })}
           </tbody>
