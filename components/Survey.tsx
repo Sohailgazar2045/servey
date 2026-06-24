@@ -552,7 +552,7 @@ export default function Survey() {
             onClick={handleSubmit}
             className="group inline-flex items-center justify-center gap-2.5 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-bold text-[15px] px-7 py-3.5 rounded-xl transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
           >
-            Submit Assessment
+            Submit Survey
             <ArrowRight className="w-4 h-4 transition-transform duration-150 group-hover:translate-x-0.5" />
           </button>
           <p className="text-slate-400 text-sm">

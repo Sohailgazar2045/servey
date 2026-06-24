@@ -16,7 +16,7 @@ export default function CTASection() {
 
           <div className="relative max-w-2xl mx-auto">
             <p className="text-blue-300 text-sm font-semibold uppercase tracking-widest mb-4">
-              Free Assessment
+              Free Survey
             </p>
             <h2 className="text-white text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-6">
               Ready to know where you stand?
@@ -30,7 +30,7 @@ export default function CTASection() {
               href="#survey"
               className="group inline-flex items-center gap-3 bg-white text-blue-700 hover:text-blue-600 font-semibold text-[17px] px-8 py-4 rounded-xl transition-all duration-200 hover:shadow-2xl hover:shadow-blue-900/40"
             >
-              Start the Free Assessment
+              Start the Free Survey
               <ArrowRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-0.5" />
             </a>
 

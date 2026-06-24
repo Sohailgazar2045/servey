@@ -54,7 +54,7 @@ export default function Hero() {
                 href="#assessment"
                 className="group inline-flex items-center gap-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-[15px] px-6 py-3.5 rounded-xl transition-all duration-200 hover:shadow-xl hover:shadow-blue-600/30"
               >
-                Take the Free Assessment
+                Take the Free Survey
                 <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
               </a>
 
