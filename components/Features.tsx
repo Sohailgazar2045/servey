@@ -41,37 +41,37 @@ const FEATURES = [
 
 export default function Features() {
   return (
-    <section id="features" className="py-28 bg-brand-navy">
+    <section id="features" className="py-28 bg-slate-50 border-y border-slate-200">
       <div className="max-w-7xl mx-auto px-6">
 
         {/* heading */}
         <div className="text-center max-w-2xl mx-auto mb-16" data-reveal>
-          <p className="text-blue-400 text-sm font-semibold uppercase tracking-widest mb-3">
+          <p className="text-blue-600 text-sm font-semibold uppercase tracking-widest mb-3">
             Platform Capabilities
           </p>
-          <h2 className="text-white text-4xl font-bold tracking-tight leading-tight mb-5">
+          <h2 className="text-slate-900 text-4xl font-bold tracking-tight leading-tight mb-5">
             Everything you need to surface compliance risk
           </h2>
-          <p className="text-slate-400 text-lg leading-relaxed">
+          <p className="text-slate-600 text-lg leading-relaxed">
             Designed for the pace of regulatory work — fast to complete, detailed in output,
             ready to share with clients, counsel, or leadership.
           </p>
         </div>
 
         {/* feature grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-white/5 rounded-2xl overflow-hidden border border-white/5">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-slate-200 rounded-2xl overflow-hidden border border-slate-200">
           {FEATURES.map(({ Icon, title, description }, i) => (
             <div
               key={title}
-              className="group bg-brand-navy hover:bg-brand-navy-mid p-8 transition-colors duration-300"
+              className="group bg-white hover:bg-slate-50 p-8 transition-colors duration-300"
               data-reveal
               data-reveal-delay={String((i % 3) * 100)}
             >
-              <div className="w-10 h-10 bg-blue-600/15 group-hover:bg-blue-600/25 rounded-xl flex items-center justify-center mb-5 transition-colors duration-300">
-                <Icon className="w-5 h-5 text-blue-400" />
+              <div className="w-10 h-10 bg-blue-500/10 group-hover:bg-blue-500/20 rounded-xl flex items-center justify-center mb-5 transition-colors duration-300">
+                <Icon className="w-5 h-5 text-blue-600" />
               </div>
-              <h3 className="text-white font-semibold text-[15px] mb-2.5">{title}</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">{description}</p>
+              <h3 className="text-slate-900 font-semibold text-[15px] mb-2.5">{title}</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">{description}</p>
             </div>
           ))}
         </div>

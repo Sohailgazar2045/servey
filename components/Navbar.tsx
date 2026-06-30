@@ -21,15 +21,15 @@ export default function Navbar() {
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'bg-brand-navy/95 backdrop-blur-md shadow-lg shadow-black/20'
+          ? 'bg-white/95 backdrop-blur-md shadow-lg shadow-slate-900/5 border-b border-slate-200'
           : 'bg-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <a href="/" className="flex items-center gap-2.5 group">
-          <Shield className="w-5 h-5 text-blue-400 group-hover:text-blue-300 transition-colors" />
-          <span className="text-white font-semibold text-[17px] tracking-tight">
+          <Shield className="w-5 h-5 text-blue-600 group-hover:text-blue-500 transition-colors" />
+          <span className="text-slate-900 font-semibold text-[17px] tracking-tight">
             ComplianceIQ
           </span>
         </a>
@@ -40,7 +40,7 @@ export default function Navbar() {
             <a
               key={label}
               href={href}
-              className="text-slate-400 hover:text-white text-sm font-medium transition-colors duration-150"
+              className="text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors duration-150"
             >
               {label}
             </a>
