@@ -51,10 +51,6 @@ async function getSubmissions(): Promise<Submission[]> {
 function AIInsightsSkeleton() {
   return (
     <div className="space-y-4 mb-8 animate-pulse">
-      <div className="flex items-center gap-3">
-        <div className="h-7 w-36 bg-slate-200 rounded-full" />
-        <div className="h-4 w-48 bg-slate-200 rounded" />
-      </div>
       <div className="bg-white border border-slate-200 rounded-xl p-6 h-20" />
       <div className="grid md:grid-cols-2 gap-4">
         <div className="bg-white border border-slate-200 rounded-xl h-48" />
@@ -141,7 +137,6 @@ export default async function AdminPage() {
           <h1 className="text-slate-900 text-3xl font-bold tracking-tight">
             Survey Submissions
           </h1>
-          <p className="text-slate-500 text-sm mt-2">Live data from Supabase · refreshed on load</p>
         </div>
 
         {/* Stat cards */}

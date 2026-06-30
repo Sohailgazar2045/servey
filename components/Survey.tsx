@@ -227,6 +227,7 @@ export default function Survey() {
   const [pdfErr,     setPdfErr]     = useState('')
   const [pdfLoading, setPdfLoading] = useState(false)
   const resultsRef = useRef<HTMLDivElement>(null)
+  const loadingRef = useRef<HTMLDivElement>(null)
 
   const answeredCount = Object.keys(answers).length
 
@@ -241,8 +242,13 @@ export default function Survey() {
     return () => clearInterval(id)
   }, [view])
 
-  // Scroll to results
+  // Bring the active view into the viewport on state change
   useEffect(() => {
+    if (view === 'loading' || view === 'error') {
+      setTimeout(() => {
+        loadingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 50)
+    }
     if (view === 'results') {
       setTimeout(() => {
         resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -317,7 +323,7 @@ export default function Survey() {
 
   if (view === 'loading') {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-16 flex flex-col items-center text-center gap-6 min-h-[320px] justify-center">
+      <div ref={loadingRef} className="bg-white rounded-2xl border border-slate-200 shadow-card p-16 flex flex-col items-center text-center gap-6 min-h-[320px] justify-center scroll-mt-24">
         <div className="w-14 h-14 rounded-full border-[3px] border-slate-100 border-t-blue-600 animate-spin" />
         <div>
           <p className="text-slate-900 font-semibold text-lg mb-1.5">{loadingMsg}</p>
@@ -331,7 +337,7 @@ export default function Survey() {
 
   if (view === 'error') {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-14 flex flex-col items-center text-center gap-5">
+      <div ref={loadingRef} className="bg-white rounded-2xl border border-slate-200 shadow-card p-14 flex flex-col items-center text-center gap-5 scroll-mt-24">
         <div className="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center">
           <XCircle className="w-7 h-7 text-red-500" />
         </div>
@@ -578,7 +584,7 @@ export default function Survey() {
             <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100">
               <Info className="w-3.5 h-3.5 text-slate-500" />
             </span>
-            <h3 className="text-slate-900 text-sm font-semibold">Participation &amp; Consent</h3>
+            <h3 className="text-slate-900 text-sm font-semibold">Disclaimer</h3>
           </div>
           <div className="rounded-lg bg-slate-50 border border-slate-200 p-5 space-y-3 text-slate-500 text-[13px] leading-[1.7]">
             <p>
