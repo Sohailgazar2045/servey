@@ -107,18 +107,21 @@ export default async function AdminPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-slate-50 hero-grid font-sans">
-      <div className="fixed -top-40 -left-40 w-[600px] h-[600px] bg-blue-400/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed bottom-0 right-0 w-[400px] h-[400px] bg-blue-300/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-slate-50 font-sans">
 
       {/* Header */}
-      <header className="border-b border-slate-200 bg-white/95 backdrop-blur-md shadow-sm shadow-slate-900/5 sticky top-0 z-10">
+      <header className="border-b border-slate-200 bg-white sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2.5 group">
-            <Shield className="w-5 h-5 text-blue-600 group-hover:text-blue-500 transition-colors" />
-            <span className="text-slate-900 font-semibold text-[17px] tracking-tight">ComplianceIQ</span>
-            <span className="text-slate-300 mx-1.5">·</span>
-            <span className="text-slate-500 text-sm">Admin</span>
+          <a href="/" className="flex items-center gap-2.5">
+            <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-600">
+              <Shield className="w-[18px] h-[18px] text-white" strokeWidth={2.2} />
+            </span>
+            <span className="text-slate-900 font-semibold text-[17px] tracking-tight">
+              ComplianceIQ
+            </span>
+            <span className="hidden sm:inline-flex items-center rounded-md bg-slate-100 border border-slate-200 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 ml-1">
+              Admin
+            </span>
           </a>
           <div className="flex items-center gap-5">
             <a href="/" className="text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors duration-150">← Back to site</a>
@@ -131,21 +134,20 @@ export default async function AdminPage() {
 
         {/* Page title */}
         <div className="mb-10">
-          <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 text-blue-600 text-xs font-semibold uppercase tracking-widest px-3.5 py-1.5 rounded-full mb-5">
-            <span className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
+          <div className="flex items-center gap-2 text-blue-600 text-sm font-semibold mb-3">
+            <span className="w-6 h-px bg-blue-600" />
             Dashboard
           </div>
           <h1 className="text-slate-900 text-3xl font-bold tracking-tight">
-            Survey{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-sky-500">Submissions</span>
+            Survey Submissions
           </h1>
-          <p className="text-slate-500 text-sm mt-2">All data loaded from Supabase</p>
+          <p className="text-slate-500 text-sm mt-2">Live data from Supabase · refreshed on load</p>
         </div>
 
         {/* Stat cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {stats.map(({ label, value, Icon, color, bg, border }) => (
-            <div key={label} className="bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-300 shadow-sm transition-colors duration-200">
+            <div key={label} className="bg-white border border-slate-200 rounded-xl p-5">
               <div className={`w-9 h-9 ${bg} border ${border} rounded-lg flex items-center justify-center mb-4`}>
                 <Icon className={`w-[18px] h-[18px] ${color}`} />
               </div>
@@ -167,7 +169,7 @@ export default async function AdminPage() {
           <div className="grid md:grid-cols-2 gap-4 mb-8">
 
             {/* Question Performance */}
-            <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+            <div className="bg-white border border-slate-200 rounded-xl shadow-card overflow-hidden">
               <div className="flex items-center gap-2.5 px-5 py-4 border-b border-slate-200">
                 <div className="w-7 h-7 bg-purple-500/10 border border-purple-500/20 rounded-lg flex items-center justify-center">
                   <BarChart3 className="w-3.5 h-3.5 text-purple-600" />
@@ -203,7 +205,7 @@ export default async function AdminPage() {
             </div>
 
             {/* Industry Breakdown */}
-            <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+            <div className="bg-white border border-slate-200 rounded-xl shadow-card overflow-hidden">
               <div className="flex items-center gap-2.5 px-5 py-4 border-b border-slate-200">
                 <div className="w-7 h-7 bg-sky-500/10 border border-sky-500/20 rounded-lg flex items-center justify-center">
                   <Building2 className="w-3.5 h-3.5 text-sky-600" />

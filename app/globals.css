@@ -4,10 +4,53 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   @apply text-slate-800 antialiased;
+  /* Crisp, premium type rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv11', 'ss01', 'liga' 1, 'calt' 1;
+  text-rendering: optimizeLegibility;
+}
+
+/* Tighten headings for a high-end editorial feel */
+h1, h2, h3 {
+  font-feature-settings: 'cv11', 'ss01';
+  letter-spacing: -0.02em;
+}
+
+/* Brand-tinted text selection */
+::selection {
+  background-color: rgb(37 99 235 / 0.16);
+  color: rgb(15 23 42);
+}
+
+/* Consistent, accessible focus ring */
+:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px rgb(37 99 235 / 0.55);
+  border-radius: 0.5rem;
+}
+
+/* ─── Utilities ──────────────────────────────────────────────────────── */
+/* Balanced, tidy text wrapping for headings & lead paragraphs */
+.text-balance { text-wrap: balance; }
+.text-pretty  { text-wrap: pretty; }
+
+/* Fade the edges of the background grid so it never hits a hard seam */
+.grid-mask {
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, #000 50%, transparent 100%);
+          mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, #000 50%, transparent 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .float { animation: none; }
+  [data-reveal] { opacity: 1; transform: none; transition: none; }
 }
 
 /* ─── Scroll reveal ──────────────────────────────────────────────────── */

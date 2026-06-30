@@ -1,4 +1,5 @@
 import { BarChart2, Bot, FileText, Lock, ShieldCheck, Clock } from 'lucide-react'
+import SectionHeading from './SectionHeading'
 
 const FEATURES = [
   {
@@ -41,36 +42,30 @@ const FEATURES = [
 
 export default function Features() {
   return (
-    <section id="features" className="py-28 bg-slate-50 border-y border-slate-200">
+    <section id="features" className="py-28 bg-white">
       <div className="max-w-7xl mx-auto px-6">
 
         {/* heading */}
-        <div className="text-center max-w-2xl mx-auto mb-16" data-reveal>
-          <p className="text-blue-600 text-sm font-semibold uppercase tracking-widest mb-3">
-            Platform Capabilities
-          </p>
-          <h2 className="text-slate-900 text-4xl font-bold tracking-tight leading-tight mb-5">
-            Everything you need to surface compliance risk
-          </h2>
-          <p className="text-slate-600 text-lg leading-relaxed">
-            Designed for the pace of regulatory work — fast to complete, detailed in output,
-            ready to share with clients, counsel, or leadership.
-          </p>
-        </div>
+        <SectionHeading
+          className="mb-16"
+          eyebrow="Platform Capabilities"
+          title="Everything you need to surface compliance risk"
+          subtitle="Designed for the pace of regulatory work — fast to complete, detailed in output, ready to share with clients, counsel, or leadership."
+        />
 
         {/* feature grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-slate-200 rounded-2xl overflow-hidden border border-slate-200">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-slate-200 rounded-xl overflow-hidden border border-slate-200">
           {FEATURES.map(({ Icon, title, description }, i) => (
             <div
               key={title}
-              className="group bg-white hover:bg-slate-50 p-8 transition-colors duration-300"
+              className="bg-white hover:bg-slate-50 p-8 transition-colors"
               data-reveal
               data-reveal-delay={String((i % 3) * 100)}
             >
-              <div className="w-10 h-10 bg-blue-500/10 group-hover:bg-blue-500/20 rounded-xl flex items-center justify-center mb-5 transition-colors duration-300">
+              <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center mb-5">
                 <Icon className="w-5 h-5 text-blue-600" />
               </div>
-              <h3 className="text-slate-900 font-semibold text-[15px] mb-2.5">{title}</h3>
+              <h3 className="text-slate-900 font-semibold text-[15px] mb-2">{title}</h3>
               <p className="text-slate-600 text-sm leading-relaxed">{description}</p>
             </div>
           ))}

@@ -3,10 +3,7 @@ import { CheckCircle2, XCircle, AlertCircle, FileText, Shield } from 'lucide-rea
 export default function ScoreCard() {
   return (
     <div className="relative w-full max-w-[400px]">
-      {/* ambient glow */}
-      <div className="absolute inset-0 bg-blue-400/20 rounded-2xl blur-3xl scale-90" />
-
-      <div className="relative float bg-white border border-slate-200 rounded-2xl p-6 shadow-2xl shadow-slate-900/10">
+      <div className="relative float bg-white border border-slate-200 rounded-2xl p-6 shadow-float">
         {/* card header */}
         <div className="flex items-start justify-between mb-5">
           <div>
@@ -34,7 +31,7 @@ export default function ScoreCard() {
 
         {/* score bar */}
         <div className="w-full bg-slate-100 rounded-full h-1 mb-6">
-          <div className="bg-gradient-to-r from-amber-500 to-amber-400 h-1 rounded-full w-[90%]" />
+          <div className="bg-amber-500 h-1 rounded-full w-[90%]" />
         </div>
 
         {/* findings */}

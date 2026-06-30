@@ -37,24 +37,24 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 hero-grid flex items-center justify-center px-4 font-sans">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 font-sans">
 
-      {/* Radial glows */}
-      <div className="fixed -top-40 -left-40 w-[600px] h-[600px] bg-blue-400/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed bottom-0 right-0 w-[400px] h-[400px] bg-blue-300/10 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="relative w-full max-w-sm">
+      <div className="w-full max-w-sm">
 
         {/* Logo — matches Navbar */}
-        <a href="/" className="flex items-center justify-center gap-2.5 mb-10 group">
-          <Shield className="w-6 h-6 text-blue-600 group-hover:text-blue-500 transition-colors" />
-          <span className="text-slate-900 font-semibold text-[17px] tracking-tight">ComplianceIQ</span>
+        <a href="/" className="flex items-center justify-center gap-2.5 mb-8">
+          <span className="flex items-center justify-center w-9 h-9 rounded-lg bg-blue-600">
+            <Shield className="w-5 h-5 text-white" strokeWidth={2.2} />
+          </span>
+          <span className="text-slate-900 font-semibold text-[18px] tracking-tight">
+            ComplianceIQ
+          </span>
         </a>
 
         {/* Card */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-2xl shadow-slate-900/10">
+        <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-card">
 
-          <div className="flex items-center justify-center w-11 h-11 bg-blue-500/10 border border-blue-500/20 rounded-xl mb-6 mx-auto">
+          <div className="flex items-center justify-center w-11 h-11 bg-blue-50 rounded-lg mb-6 mx-auto">
             <Lock className="w-5 h-5 text-blue-600" />
           </div>
 
@@ -89,7 +89,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading || !password}
-              className="w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold py-3 rounded-lg transition-colors duration-150"
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold py-3 rounded-lg transition-colors"
             >
               {loading ? 'Verifying…' : 'Sign In'}
             </button>

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import {
   CheckCircle2, XCircle, AlertCircle,
-  Download, RotateCcw, ArrowRight, ChevronDown,
+  Download, RotateCcw, ArrowRight, ChevronDown, Info,
 } from 'lucide-react'
 import type { PDFData } from '@/lib/generatePDF'
 
@@ -124,17 +124,17 @@ function OptionButton({
   selected: boolean
   onClick:  () => void
 }) {
-  const base = 'flex-1 py-2.5 px-3 rounded-xl border font-semibold text-sm transition-all duration-150 cursor-pointer text-center select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1'
+  const base = 'flex-1 py-2.5 px-3 rounded-lg border font-semibold text-sm transition-colors cursor-pointer text-center select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1'
 
   let cls = base
   if (!selected) {
     cls += ' bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50 focus-visible:ring-blue-400'
   } else if (variant === 'yes') {
-    cls += ' bg-emerald-500 border-emerald-500 text-white shadow-sm shadow-emerald-200 focus-visible:ring-emerald-400'
+    cls += ' bg-emerald-600 border-emerald-600 text-white focus-visible:ring-emerald-400'
   } else if (variant === 'partial') {
-    cls += ' bg-amber-500 border-amber-500 text-white shadow-sm shadow-amber-200 focus-visible:ring-amber-400'
+    cls += ' bg-amber-500 border-amber-500 text-white focus-visible:ring-amber-400'
   } else {
-    cls += ' bg-red-500 border-red-500 text-white shadow-sm shadow-red-200 focus-visible:ring-red-400'
+    cls += ' bg-red-500 border-red-500 text-white focus-visible:ring-red-400'
   }
 
   return (
@@ -194,7 +194,7 @@ function AnalysisCard({
   const { label, Icon, dot, border, header, title } = map[variant]
 
   return (
-    <div className={`rounded-2xl border ${border} overflow-hidden`}>
+    <div className={`rounded-2xl border ${border} shadow-card overflow-hidden`}>
       <div className={`${header} px-5 py-3.5 flex items-center gap-2.5`}>
         <Icon className={`w-4 h-4 ${dot.replace('bg-', 'text-')}`} />
         <span className={`font-bold text-sm ${title}`}>{label}</span>
@@ -222,6 +222,7 @@ export default function Survey() {
   const [loadingMsg, setLoadingMsg] = useState(LOADING_STEPS[0])
   const [result,     setResult]     = useState<ResultPayload | null>(null)
   const [errors,     setErrors]     = useState<Record<string, string>>({})
+  const [agreed,     setAgreed]     = useState(false)
   const [serverErr,  setServerErr]  = useState('')
   const [pdfErr,     setPdfErr]     = useState('')
   const [pdfLoading, setPdfLoading] = useState(false)
@@ -258,6 +259,8 @@ export default function Survey() {
     if (!form.industry) e.industry = 'Select an industry'
     if (answeredCount < 8)
       e.answers = `${8 - answeredCount} question${8 - answeredCount !== 1 ? 's' : ''} still unanswered`
+    if (!agreed)
+      e.agreed = 'Please confirm the acknowledgment above to continue'
     return e
   }
 
@@ -305,6 +308,7 @@ export default function Survey() {
     setAnswers({})
     setResult(null)
     setErrors({})
+    setAgreed(false)
     setServerErr('')
     setView('form')
   }
@@ -313,7 +317,7 @@ export default function Survey() {
 
   if (view === 'loading') {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-16 flex flex-col items-center text-center gap-6 min-h-[320px] justify-center">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-16 flex flex-col items-center text-center gap-6 min-h-[320px] justify-center">
         <div className="w-14 h-14 rounded-full border-[3px] border-slate-100 border-t-blue-600 animate-spin" />
         <div>
           <p className="text-slate-900 font-semibold text-lg mb-1.5">{loadingMsg}</p>
@@ -327,7 +331,7 @@ export default function Survey() {
 
   if (view === 'error') {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-14 flex flex-col items-center text-center gap-5">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-14 flex flex-col items-center text-center gap-5">
         <div className="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center">
           <XCircle className="w-7 h-7 text-red-500" />
         </div>
@@ -337,7 +341,7 @@ export default function Survey() {
         </div>
         <button
           onClick={handleReset}
-          className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold px-5 py-2.5 rounded-xl transition-colors"
+          className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold px-5 py-2.5 rounded-lg transition-colors"
         >
           <RotateCcw className="w-4 h-4" /> Try Again
         </button>
@@ -361,7 +365,7 @@ export default function Survey() {
       <div ref={resultsRef} className="space-y-4 scroll-mt-24">
 
         {/* Score header */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-8">
           <div className="flex flex-col sm:flex-row gap-8 items-start sm:items-center">
             <ScoreCircle score={result.score} maxScore={result.maxScore} riskBadge={result.riskBadge} />
             <div className="flex-1 min-w-0">
@@ -388,19 +392,19 @@ export default function Survey() {
         <AnalysisCard variant="recommendation" items={result.analysis.recommendations} />
 
         {/* Actions */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-6">
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={handleDownloadPDF}
               disabled={pdfLoading}
-              className="flex-1 inline-flex items-center justify-center gap-2.5 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white font-bold py-3.5 px-6 rounded-xl transition-colors duration-150"
+              className="flex-1 inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white font-semibold py-3.5 px-6 rounded-lg transition-colors"
             >
               <Download className="w-4 h-4" />
               {pdfLoading ? 'Generating…' : 'Download PDF Report'}
             </button>
             <button
               onClick={handleReset}
-              className="inline-flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900 font-semibold py-3.5 px-5 rounded-xl border border-slate-200 hover:border-slate-300 transition-colors duration-150"
+              className="inline-flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900 font-semibold py-3.5 px-5 rounded-lg border border-slate-200 hover:border-slate-300 transition-colors duration-150"
             >
               <RotateCcw className="w-4 h-4" />
               New Survey
@@ -413,7 +417,7 @@ export default function Survey() {
 
         {/* Audit record */}
         <div className="bg-slate-50 rounded-2xl border border-slate-200 p-6">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+          <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-4">
             Audit Record
           </p>
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-3.5">
@@ -442,7 +446,7 @@ export default function Survey() {
     <div className="space-y-4">
 
       {/* Progress */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-6 py-4">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-card px-6 py-4">
         <div className="flex items-center justify-between mb-2">
           <p className="text-sm font-semibold text-slate-700">Assessment Progress</p>
           <span className={`text-sm font-bold tabular-nums ${answeredCount === 8 ? 'text-emerald-600' : 'text-slate-400'}`}>
@@ -461,10 +465,11 @@ export default function Survey() {
       </div>
 
       {/* Company info */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-5">
-          Company Information
-        </p>
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-6">
+        <div className="mb-5">
+          <h3 className="text-slate-900 text-sm font-semibold">Company Information</h3>
+          <p className="text-slate-400 text-xs mt-0.5">Used to personalize your report and audit record.</p>
+        </div>
         <div className="grid sm:grid-cols-2 gap-4">
           {([
             { key: 'companyName', label: 'Company Name', type: 'text',  placeholder: 'Acme Broadcasting Co.' },
@@ -480,7 +485,7 @@ export default function Survey() {
                 value={form[key]}
                 onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
                 placeholder={placeholder}
-                className={`w-full px-4 py-2.5 rounded-xl border text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all duration-150 focus:border-blue-500 focus:ring-3 focus:ring-blue-500/12 ${
+                className={`w-full px-4 py-2.5 rounded-lg border text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-colors duration-150 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 ${
                   errors[key] ? 'border-red-400 bg-red-50/50' : 'border-slate-200 hover:border-slate-300'
                 }`}
               />
@@ -498,7 +503,7 @@ export default function Survey() {
               <select
                 value={form.industry}
                 onChange={e => setForm(p => ({ ...p, industry: e.target.value }))}
-                className={`w-full appearance-none px-4 py-2.5 pr-9 rounded-xl border text-sm outline-none transition-all duration-150 focus:border-blue-500 focus:ring-3 focus:ring-blue-500/12 cursor-pointer ${
+                className={`w-full appearance-none px-4 py-2.5 pr-9 rounded-lg border text-sm outline-none transition-colors duration-150 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer ${
                   !form.industry ? 'text-slate-400' : 'text-slate-900'
                 } ${errors.industry ? 'border-red-400 bg-red-50/50' : 'border-slate-200 hover:border-slate-300'}`}
               >
@@ -517,17 +522,23 @@ export default function Survey() {
       </div>
 
       {/* Questions */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-5">
-          Compliance Assessment — 8 Questions
-        </p>
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-6">
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h3 className="text-slate-900 text-sm font-semibold">Compliance Assessment</h3>
+            <p className="text-slate-400 text-xs mt-0.5">8 questions · select one answer for each.</p>
+          </div>
+          <span className="text-xs font-semibold tabular-nums text-slate-400">
+            {answeredCount}/8
+          </span>
+        </div>
         <div className="space-y-3">
           {QUESTIONS.map((q, i) => {
             const answered = answers[i] !== undefined
             return (
               <div
                 key={i}
-                className={`p-5 rounded-xl border transition-colors duration-200 ${
+                className={`p-5 rounded-lg border transition-colors duration-200 ${
                   answered ? 'border-slate-200 bg-slate-50/70' : 'border-slate-200 bg-white'
                 }`}
               >
@@ -541,7 +552,7 @@ export default function Survey() {
                     {q.text}
                   </p>
                 </div>
-                <div className="flex gap-2.5 ml-[calc(28px+14px)]">
+                <div className="grid grid-cols-3 gap-2.5">
                   {q.options.map(opt => (
                     <OptionButton
                       key={opt.value}
@@ -559,12 +570,74 @@ export default function Survey() {
       </div>
 
       {/* Submit */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-6">
+
+        {/* Consent disclaimer */}
+        <div className="mb-5">
+          <div className="flex items-center gap-2.5 mb-3">
+            <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100">
+              <Info className="w-3.5 h-3.5 text-slate-500" />
+            </span>
+            <h3 className="text-slate-900 text-sm font-semibold">Participation &amp; Consent</h3>
+          </div>
+          <div className="rounded-lg bg-slate-50 border border-slate-200 p-5 space-y-3 text-slate-500 text-[13px] leading-[1.7]">
+            <p>
+              You are invited to participate in the 2026 AETHYRLEX COMPLIANCE ASSESSMENT SURVEY.
+              The purpose of this study is to evaluate internal alignment with FCC Part 15
+              regulations and identify areas for compliance improvement. This survey will take
+              approximately 3–5 minutes to complete. Your participation is highly valued and
+              completely voluntary. You may skip any question or stop the survey at any time. To
+              ensure objective reporting, all responses will be kept strictly anonymous. Data will
+              be aggregated and analyzed by our Internal Dept. Individual responses will not be
+              linked to your name or employment record, and no retaliatory action can or will be
+              taken based on your feedback.
+            </p>
+            <p>
+              Information gathered will be stored on secure, encrypted servers accessible only to
+              authorized compliance personnel. By proceeding to the next page, you acknowledge that
+              you have read this information and consent to participate. For questions regarding this
+              study, or to report a compliance concern directly, please contact the Compliance Office
+              at{' '}
+              <a href="mailto:compliance@aethyrlex.com" className="font-medium text-blue-600 hover:text-blue-700">
+                compliance@aethyrlex.com
+              </a>
+              . Thank you for your cooperation.
+            </p>
+            <p className="text-slate-400 italic">
+              This survey assessment is mainly an FCC Compliance Readiness Report general tool.
+            </p>
+          </div>
+        </div>
+
+        {/* Acknowledgment — required */}
+        <label className="flex items-start gap-3 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={agreed}
+            onChange={e => {
+              setAgreed(e.target.checked)
+              setErrors(prev => {
+                const next = { ...prev }
+                delete next.agreed
+                return next
+              })
+            }}
+            className="mt-0.5 h-4 w-4 shrink-0 accent-blue-600 cursor-pointer"
+          />
+          <span className="text-slate-600 text-sm leading-relaxed">
+            I understand that this assessment is for informational purposes only, does not
+            constitute legal advice, and does not guarantee FCC compliance.
+          </span>
+        </label>
+        {errors.agreed && (
+          <p className="text-red-500 text-xs ml-7 mt-1.5 font-medium">{errors.agreed}</p>
+        )}
+
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mt-5 pt-5 border-t border-slate-100">
           <button
             type="button"
             onClick={handleSubmit}
-            className="group inline-flex items-center justify-center gap-2.5 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-bold text-[15px] px-7 py-3.5 rounded-xl transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+            className="group inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-semibold text-[15px] px-7 py-3.5 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
           >
             Submit Survey
             <ArrowRight className="w-4 h-4 transition-transform duration-150 group-hover:translate-x-0.5" />

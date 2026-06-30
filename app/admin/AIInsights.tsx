@@ -107,7 +107,7 @@ Guidelines:
       </div>
 
       {/* Summary card */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-card p-6">
         <div className="flex flex-col sm:flex-row sm:items-start gap-4">
           <div className={`shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold ${bg} ${border} ${color}`}>
             <Icon className="w-3.5 h-3.5" />
@@ -121,7 +121,7 @@ Guidelines:
       <div className="grid md:grid-cols-2 gap-4">
 
         {/* Top Risks */}
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-white border border-slate-200 rounded-xl shadow-card overflow-hidden">
           <div className="flex items-center gap-2.5 px-5 py-4 border-b border-slate-200">
             <div className="w-7 h-7 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center justify-center">
               <AlertTriangle className="w-3.5 h-3.5 text-red-600" />
@@ -141,7 +141,7 @@ Guidelines:
         </div>
 
         {/* Recommendations */}
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-white border border-slate-200 rounded-xl shadow-card overflow-hidden">
           <div className="flex items-center gap-2.5 px-5 py-4 border-b border-slate-200">
             <div className="w-7 h-7 bg-blue-500/10 border border-blue-500/20 rounded-lg flex items-center justify-center">
               <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />

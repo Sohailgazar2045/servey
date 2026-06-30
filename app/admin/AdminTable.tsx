@@ -162,7 +162,7 @@ export default function AdminTable({ submissions }: { submissions: Submission[] 
 
   if (submissions.length === 0) {
     return (
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-16 flex flex-col items-center text-center gap-4">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-card p-16 flex flex-col items-center text-center gap-4">
         <div className="w-12 h-12 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-center justify-center">
           <ClipboardList className="w-5 h-5 text-blue-600" />
         </div>
@@ -175,7 +175,7 @@ export default function AdminTable({ submissions }: { submissions: Submission[] 
   }
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+    <div className="bg-white border border-slate-200 rounded-xl shadow-card overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
