@@ -21,12 +21,18 @@ const config: Config = {
       },
       backgroundImage: {
         'hero-grid': `
-          linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)
+          linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)
         `,
       },
       backgroundSize: {
         'grid-48': '48px 48px',
+      },
+      boxShadow: {
+        // Subtle, realistic elevation — restrained on purpose
+        'card':       '0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.04)',
+        'card-hover': '0 4px 12px -2px rgb(15 23 42 / 0.08), 0 2px 4px -1px rgb(15 23 42 / 0.04)',
+        'float':      '0 12px 32px -12px rgb(15 23 42 / 0.18), 0 2px 8px -2px rgb(15 23 42 / 0.06)',
       },
     },
   },

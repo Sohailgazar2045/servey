@@ -1,4 +1,5 @@
 import { Radio, Cpu, Wifi, Briefcase, Scale, Building2 } from 'lucide-react'
+import SectionHeading from './SectionHeading'
 
 const INDUSTRIES = [
   {
@@ -45,29 +46,23 @@ export default function Industries() {
       <div className="max-w-7xl mx-auto px-6">
 
         {/* heading */}
-        <div className="text-center max-w-xl mx-auto mb-16" data-reveal>
-          <p className="text-blue-600 text-sm font-semibold uppercase tracking-widest mb-3">
-            Who It&apos;s For
-          </p>
-          <h2 className="text-slate-900 text-4xl font-bold tracking-tight leading-tight mb-5">
-            Built for every regulated entity
-          </h2>
-          <p className="text-slate-500 text-lg leading-relaxed">
-            The assessment adapts its AI analysis to your industry — so recommendations are
-            specific to your regulatory context, not generic boilerplate.
-          </p>
-        </div>
+        <SectionHeading
+          className="mb-16"
+          eyebrow="Who It's For"
+          title="Built for every regulated entity"
+          subtitle="The assessment adapts its AI analysis to your industry — so recommendations are specific to your regulatory context, not generic boilerplate."
+        />
 
         {/* cards */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {INDUSTRIES.map(({ Icon, name, description }, i) => (
             <div
               key={name}
-              className="group bg-white border border-slate-200 rounded-2xl p-6 hover:border-blue-300 hover:shadow-xl hover:shadow-blue-100/50 transition-all duration-300"
+              className="bg-white border border-slate-200 rounded-xl p-6 hover:border-slate-300 hover:shadow-card-hover transition-all duration-200"
               data-reveal
               data-reveal-delay={String((i % 3) * 100)}
             >
-              <div className="w-10 h-10 bg-blue-50 group-hover:bg-blue-100 rounded-xl flex items-center justify-center mb-4 transition-colors duration-300">
+              <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center mb-4">
                 <Icon className="w-5 h-5 text-blue-600" />
               </div>
               <h3 className="text-slate-900 font-semibold text-[17px] mb-2">{name}</h3>

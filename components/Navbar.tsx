@@ -13,34 +13,37 @@ export default function Navbar() {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
+    onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-200 ${
         scrolled
-          ? 'bg-brand-navy/95 backdrop-blur-md shadow-lg shadow-black/20'
+          ? 'bg-white/90 backdrop-blur border-b border-slate-200'
           : 'bg-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
-        <a href="/" className="flex items-center gap-2.5 group">
-          <Shield className="w-5 h-5 text-blue-400 group-hover:text-blue-300 transition-colors" />
-          <span className="text-white font-semibold text-[17px] tracking-tight">
+        <a href="/" className="flex items-center gap-2.5">
+          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-600">
+            <Shield className="w-[18px] h-[18px] text-white" strokeWidth={2.2} />
+          </span>
+          <span className="text-slate-900 font-semibold text-[17px] tracking-tight">
             ComplianceIQ
           </span>
         </a>
 
         {/* Links */}
-        <nav className="hidden md:flex items-center gap-7">
+        <nav className="hidden md:flex items-center gap-8">
           {NAV_LINKS.map(({ label, href }) => (
             <a
               key={label}
               href={href}
-              className="text-slate-400 hover:text-white text-sm font-medium transition-colors duration-150"
+              className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
             >
               {label}
             </a>
@@ -50,7 +53,7 @@ export default function Navbar() {
         {/* CTA */}
         <a
           href="#assessment"
-          className="bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors duration-150"
+          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
         >
           Start Survey
         </a>
