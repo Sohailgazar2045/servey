@@ -17,8 +17,8 @@ export default function SectionHeading({
 
   return (
     <div className={`${isCenter ? 'text-center mx-auto max-w-2xl' : 'max-w-xl'} ${className}`} data-reveal>
-      <div className={`flex items-center gap-2 text-blue-600 text-sm font-semibold mb-4 ${isCenter ? 'justify-center' : ''}`}>
-        <span className="w-6 h-px bg-blue-600" />
+      <div className={`flex items-center gap-2 text-brand-page text-sm font-semibold mb-4 ${isCenter ? 'justify-center' : ''}`}>
+        <span className="w-6 h-px bg-brand-page" />
         {eyebrow}
       </div>
 

@@ -21,9 +21,9 @@ const SCORE_MAP: Record<string, number> = {
 }
 
 function getRisk(score: number) {
-  if (score >= 65) return { level: 'Low Risk',      badge: 'low',      color: '#10B981' }
-  if (score >= 40) return { level: 'Moderate Risk', badge: 'moderate', color: '#F59E0B' }
-  return               { level: 'High Risk',        badge: 'high',     color: '#EF4444' }
+  if (score >= 65) return { level: 'Low Risk',      badge: 'low',      color: '#16A34A' }
+  if (score >= 40) return { level: 'Moderate Risk', badge: 'moderate', color: '#CA8A04' }
+  return               { level: 'High Risk',        badge: 'high',     color: '#DC2626' }
 }
 
 export async function POST(req: NextRequest) {

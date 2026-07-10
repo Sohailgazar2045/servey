@@ -87,9 +87,9 @@ Guidelines:
   }
 
   const outlookConfig = {
-    positive:   { label: 'Positive Outlook',   Icon: TrendingUp,   color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-200' },
-    neutral:    { label: 'Neutral Outlook',     Icon: Minus,        color: 'text-amber-700',   bg: 'bg-amber-50',   border: 'border-amber-200'   },
-    concerning: { label: 'Concerning Outlook',  Icon: TrendingDown, color: 'text-red-700',     bg: 'bg-red-50',     border: 'border-red-200'     },
+    positive:   { label: 'Positive Outlook',   Icon: TrendingUp,   color: 'text-green-700',  bg: 'bg-green-50',  border: 'border-green-200'  },
+    neutral:    { label: 'Neutral Outlook',     Icon: Minus,        color: 'text-yellow-700', bg: 'bg-yellow-50', border: 'border-yellow-200' },
+    concerning: { label: 'Concerning Outlook',  Icon: TrendingDown, color: 'text-red-700',    bg: 'bg-red-50',    border: 'border-red-200'    },
   }[insights.outlook ?? 'neutral']
 
   const { label, Icon, color, bg, border } = outlookConfig
@@ -114,15 +114,15 @@ Guidelines:
         {/* Top Risks */}
         <div className="bg-white border border-slate-200 rounded-xl shadow-card overflow-hidden">
           <div className="flex items-center gap-2.5 px-5 py-4 border-b border-slate-200">
-            <div className="w-7 h-7 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center justify-center">
-              <AlertTriangle className="w-3.5 h-3.5 text-red-600" />
+            <div className="w-7 h-7 bg-brand-high/10 border border-brand-high/20 rounded-lg flex items-center justify-center">
+              <AlertTriangle className="w-3.5 h-3.5 text-brand-high" />
             </div>
             <span className="text-slate-900 text-sm font-semibold">Top Risk Patterns</span>
           </div>
           <div className="px-5 py-4 space-y-3.5">
             {insights.topRisks?.map((risk, i) => (
               <div key={i} className="flex items-start gap-3">
-                <span className="w-5 h-5 shrink-0 rounded-full bg-red-100 border border-red-200 flex items-center justify-center text-red-700 text-[10px] font-bold mt-0.5">
+                <span className="w-5 h-5 shrink-0 rounded-full bg-red-100 border border-red-200 flex items-center justify-center text-brand-high text-[10px] font-bold mt-0.5">
                   {i + 1}
                 </span>
                 <p className="text-slate-700 text-[13px] leading-relaxed">{risk}</p>
@@ -134,15 +134,15 @@ Guidelines:
         {/* Recommendations */}
         <div className="bg-white border border-slate-200 rounded-xl shadow-card overflow-hidden">
           <div className="flex items-center gap-2.5 px-5 py-4 border-b border-slate-200">
-            <div className="w-7 h-7 bg-blue-500/10 border border-blue-500/20 rounded-lg flex items-center justify-center">
-              <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
+            <div className="w-7 h-7 bg-brand-teal/10 border border-brand-teal/20 rounded-lg flex items-center justify-center">
+              <CheckCircle2 className="w-3.5 h-3.5 text-brand-teal" />
             </div>
             <span className="text-slate-900 text-sm font-semibold">Recommendations</span>
           </div>
           <div className="px-5 py-4 space-y-3.5">
             {insights.recommendations?.map((rec, i) => (
               <div key={i} className="flex items-start gap-3">
-                <span className="w-5 h-5 shrink-0 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-700 text-[10px] font-bold mt-0.5">
+                <span className="w-5 h-5 shrink-0 rounded-full bg-brand-teal/15 border border-brand-teal/30 flex items-center justify-center text-brand-teal text-[10px] font-bold mt-0.5">
                   {i + 1}
                 </span>
                 <p className="text-slate-700 text-[13px] leading-relaxed">{rec}</p>

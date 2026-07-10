@@ -62,8 +62,8 @@ export default function Features() {
               data-reveal
               data-reveal-delay={String((i % 3) * 100)}
             >
-              <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center mb-5">
-                <Icon className="w-5 h-5 text-blue-600" />
+              <div className="w-10 h-10 bg-brand-page rounded-lg flex items-center justify-center mb-5">
+                <Icon className="w-5 h-5 text-white" />
               </div>
               <h3 className="text-slate-900 font-semibold text-[15px] mb-2">{title}</h3>
               <p className="text-slate-600 text-sm leading-relaxed">{description}</p>

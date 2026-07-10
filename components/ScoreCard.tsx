@@ -12,8 +12,8 @@ export default function ScoreCard() {
             </p>
             <p className="text-slate-500 text-xs">Broadview Communications · Telecom</p>
           </div>
-          <div className="bg-blue-500/10 border border-blue-500/25 rounded-xl p-2.5">
-            <Shield className="w-4 h-4 text-blue-600" />
+          <div className="bg-brand-teal/10 border border-brand-teal/25 rounded-xl p-2.5">
+            <Shield className="w-4 h-4 text-brand-teal" />
           </div>
         </div>
 
@@ -24,20 +24,20 @@ export default function ScoreCard() {
         </div>
 
         {/* risk badge */}
-        <div className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-700 text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-4">
-          <span className="w-1.5 h-1.5 bg-amber-500 rounded-full" />
+        <div className="inline-flex items-center gap-1.5 bg-yellow-50 border border-yellow-200 text-yellow-700 text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-4">
+          <span className="w-1.5 h-1.5 bg-brand-moderate rounded-full" />
           Moderate Risk
         </div>
 
         {/* score bar */}
         <div className="w-full bg-slate-100 rounded-full h-1 mb-6">
-          <div className="bg-amber-500 h-1 rounded-full w-[90%]" />
+          <div className="bg-brand-moderate h-1 rounded-full w-[90%]" />
         </div>
 
         {/* findings */}
         <div className="space-y-2.5 mb-5">
-          <div className="flex items-start gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-3.5 py-3">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+          <div className="flex items-start gap-3 bg-green-50 border border-green-200 rounded-xl px-3.5 py-3">
+            <CheckCircle2 className="w-4 h-4 text-brand-low mt-0.5 flex-shrink-0" />
             <div>
               <p className="text-slate-900 text-[11px] font-semibold mb-0.5">Strength</p>
               <p className="text-slate-600 text-xs leading-relaxed">
@@ -56,8 +56,8 @@ export default function ScoreCard() {
             </div>
           </div>
 
-          <div className="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl px-3.5 py-3">
-            <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+          <div className="flex items-start gap-3 bg-brand-teal/10 border border-brand-teal/20 rounded-xl px-3.5 py-3">
+            <AlertCircle className="w-4 h-4 text-brand-teal mt-0.5 flex-shrink-0" />
             <div>
               <p className="text-slate-900 text-[11px] font-semibold mb-0.5">Recommendation</p>
               <p className="text-slate-600 text-xs leading-relaxed">
@@ -72,8 +72,8 @@ export default function ScoreCard() {
           <FileText className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
           <span className="text-slate-500 text-xs font-medium">Compliance_Report_June2026.pdf</span>
           <div className="ml-auto flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-            <span className="text-emerald-600 text-[10px] font-semibold">Ready</span>
+            <div className="w-1.5 h-1.5 bg-brand-teal rounded-full" />
+            <span className="text-brand-teal text-[10px] font-semibold">Ready</span>
           </div>
         </div>
       </div>

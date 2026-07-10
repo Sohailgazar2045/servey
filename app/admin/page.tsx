@@ -96,31 +96,31 @@ export default async function AdminPage() {
     .sort((a, b) => b.avg - a.avg)
 
   const stats = [
-    { label: 'Total Submissions', value: total,                  Icon: Users,         color: 'text-blue-600',    bg: 'bg-blue-500/10',    border: 'border-blue-500/20'    },
-    { label: 'Average Score',     value: `${avg} / 80`,          Icon: BarChart2,     color: 'text-purple-600',  bg: 'bg-purple-500/10',  border: 'border-purple-500/20'  },
-    { label: 'Low / Moderate',    value: `${low} / ${moderate}`, Icon: CheckCircle,   color: 'text-emerald-600', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
-    { label: 'High Risk',         value: high,                   Icon: AlertTriangle, color: 'text-red-600',     bg: 'bg-red-500/10',     border: 'border-red-500/20'     },
+    { label: 'Total Submissions', value: total,                  Icon: Users,         color: 'text-brand-teal',     bg: 'bg-brand-teal/10',     border: 'border-brand-teal/20'     },
+    { label: 'Average Score',     value: `${avg} / 80`,          Icon: BarChart2,     color: 'text-purple-600',     bg: 'bg-purple-500/10',     border: 'border-purple-500/20'     },
+    { label: 'Low / Moderate',    value: `${low} / ${moderate}`, Icon: CheckCircle,   color: 'text-brand-low',      bg: 'bg-brand-low/10',      border: 'border-brand-low/20'      },
+    { label: 'High Risk',         value: high,                   Icon: AlertTriangle, color: 'text-brand-high',     bg: 'bg-brand-high/10',     border: 'border-brand-high/20'     },
   ]
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans">
+    <div className="min-h-screen bg-brand-canvas font-sans">
 
       {/* Header */}
-      <header className="border-b border-slate-200 bg-white sticky top-0 z-10">
+      <header className="border-b border-brand-report-dark bg-brand-report sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2.5">
-            <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-600">
+            <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-brand-teal">
               <Shield className="w-[18px] h-[18px] text-white" strokeWidth={2.2} />
             </span>
-            <span className="text-slate-900 font-semibold text-[17px] tracking-tight">
+            <span className="text-white font-semibold text-[17px] tracking-tight">
               ComplianceIQ
             </span>
-            <span className="hidden sm:inline-flex items-center rounded-md bg-slate-100 border border-slate-200 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 ml-1">
+            <span className="hidden sm:inline-flex items-center rounded-md bg-white/10 border border-white/15 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/70 ml-1">
               Admin
             </span>
           </a>
           <div className="flex items-center gap-5">
-            <a href="/" className="text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors duration-150">← Back to site</a>
+            <a href="/" className="text-white/70 hover:text-white text-sm font-medium transition-colors duration-150">← Back to site</a>
             <LogoutButton />
           </div>
         </div>
@@ -130,8 +130,8 @@ export default async function AdminPage() {
 
         {/* Page title */}
         <div className="mb-10">
-          <div className="flex items-center gap-2 text-blue-600 text-sm font-semibold mb-3">
-            <span className="w-6 h-px bg-blue-600" />
+          <div className="flex items-center gap-2 text-brand-teal text-sm font-semibold mb-3">
+            <span className="w-6 h-px bg-brand-teal" />
             Dashboard
           </div>
           <h1 className="text-slate-900 text-3xl font-bold tracking-tight">
@@ -182,14 +182,14 @@ export default async function AdminPage() {
                       <span className="text-slate-500 text-xs tabular-nums">{passPct}% pass</span>
                     </div>
                     <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden flex">
-                      <div className="h-full bg-emerald-500" style={{ width: `${passPct}%` }} />
-                      <div className="h-full bg-amber-500"   style={{ width: `${partialPct}%` }} />
-                      <div className="h-full bg-red-500"     style={{ width: `${failPct}%` }} />
+                      <div className="h-full bg-brand-low"      style={{ width: `${passPct}%` }} />
+                      <div className="h-full bg-brand-moderate" style={{ width: `${partialPct}%` }} />
+                      <div className="h-full bg-brand-high"     style={{ width: `${failPct}%` }} />
                     </div>
                   </div>
                 ))}
                 <div className="flex items-center gap-4 pt-1">
-                  {[['bg-emerald-500','Pass'],['bg-amber-500','Partial'],['bg-red-500','Fail']].map(([bg, lbl]) => (
+                  {[['bg-brand-low','Pass'],['bg-brand-moderate','Partial'],['bg-brand-high','Fail']].map(([bg, lbl]) => (
                     <div key={lbl} className="flex items-center gap-1.5">
                       <span className={`w-2 h-2 rounded-full ${bg}`} />
                       <span className="text-slate-600 text-xs">{lbl}</span>
@@ -215,8 +215,8 @@ export default async function AdminPage() {
                   <p className="text-slate-500 text-sm">No data yet.</p>
                 ) : industries.map(({ name, count, avg: iAvg }) => {
                   const pct   = Math.round((iAvg / 80) * 100)
-                  const color = pct >= 80 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : 'bg-red-500'
-                  const text  = pct >= 80 ? 'text-emerald-600' : pct >= 50 ? 'text-amber-600' : 'text-red-600'
+                  const color = pct >= 80 ? 'bg-brand-low' : pct >= 50 ? 'bg-brand-moderate' : 'bg-brand-high'
+                  const text  = pct >= 80 ? 'text-brand-low' : pct >= 50 ? 'text-brand-moderate' : 'text-brand-high'
                   return (
                     <div key={name}>
                       <div className="flex items-center justify-between mb-1.5">

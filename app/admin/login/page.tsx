@@ -37,13 +37,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 font-sans">
+    <div className="min-h-screen bg-brand-canvas flex items-center justify-center px-4 font-sans">
 
       <div className="w-full max-w-sm">
 
         {/* Logo — matches Navbar */}
         <a href="/" className="flex items-center justify-center gap-2.5 mb-8">
-          <span className="flex items-center justify-center w-9 h-9 rounded-lg bg-blue-600">
+          <span className="flex items-center justify-center w-9 h-9 rounded-lg bg-brand-page">
             <Shield className="w-5 h-5 text-white" strokeWidth={2.2} />
           </span>
           <span className="text-slate-900 font-semibold text-[18px] tracking-tight">
@@ -54,8 +54,8 @@ export default function LoginPage() {
         {/* Card */}
         <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-card">
 
-          <div className="flex items-center justify-center w-11 h-11 bg-blue-50 rounded-lg mb-6 mx-auto">
-            <Lock className="w-5 h-5 text-blue-600" />
+          <div className="flex items-center justify-center w-11 h-11 bg-brand-teal/10 rounded-lg mb-6 mx-auto">
+            <Lock className="w-5 h-5 text-brand-teal" />
           </div>
 
           <h1 className="text-slate-900 text-xl font-bold text-center mb-1">Admin Access</h1>
@@ -70,7 +70,7 @@ export default function LoginPage() {
                 placeholder="Password"
                 required
                 autoFocus
-                className="w-full bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm rounded-lg px-4 py-3 pr-10 outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30 transition-colors"
+                className="w-full bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm rounded-lg px-4 py-3 pr-10 outline-none focus:border-brand-teal/60 focus:ring-1 focus:ring-brand-teal/30 transition-colors"
               />
               <button
                 type="button"
@@ -89,7 +89,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading || !password}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold py-3 rounded-lg transition-colors"
+              className="w-full bg-brand-teal hover:bg-brand-teal-dark disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold py-3 rounded-lg transition-colors"
             >
               {loading ? 'Verifying…' : 'Sign In'}
             </button>

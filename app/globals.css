@@ -24,7 +24,7 @@ h1, h2, h3 {
 
 /* Brand-tinted text selection */
 ::selection {
-  background-color: rgb(37 99 235 / 0.16);
+  background-color: rgb(13 148 136 / 0.18);
   color: rgb(15 23 42);
 }
 
@@ -33,7 +33,7 @@ h1, h2, h3 {
   outline: none;
   box-shadow:
     0 0 0 2px #fff,
-    0 0 0 4px rgb(37 99 235 / 0.55);
+    0 0 0 4px rgb(13 148 136 / 0.55);
   border-radius: 0.5rem;
 }
 
@@ -76,6 +76,14 @@ h1, h2, h3 {
   background-image:
     linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px),
     linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* Light-line grid for use on the Deep Navy hero background */
+.hero-grid-dark {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
   background-size: 48px 48px;
 }
 

@@ -22,17 +22,17 @@ export interface PDFData {
 
 type RGB = [number, number, number]
 
-const NAVY:  RGB = [11,  22,  40]
-const BLUE:  RGB = [26,  86, 219]
+const NAVY:  RGB = [31,  41,  55]  // #1F2937 — Reports chrome
+const BLUE:  RGB = [13, 148, 136]  // #0D9488 — Teal accent
 const WHITE: RGB = [255, 255, 255]
 const MUTED: RGB = [100, 116, 139]
 const DARK:  RGB = [15,  23,  42]
-const LIGHT: RGB = [248, 250, 252]
+const LIGHT: RGB = [248, 250, 252]  // #F8FAFC
 
 const RISK_COLORS: Record<string, RGB> = {
-  low:      [16,  185, 129],
-  moderate: [245, 158,  11],
-  high:     [239,  68,  68],
+  low:      [22,  163,  74],  // #16A34A
+  moderate: [202, 138,   4],  // #CA8A04
+  high:     [220,  38,  38],  // #DC2626
 }
 
 export async function generatePDF(data: PDFData): Promise<void> {
@@ -117,7 +117,7 @@ export async function generatePDF(data: PDFData): Promise<void> {
   doc.rect(0, 0, W, 4, 'F')
 
   // Logo
-  doc.setFillColor(26, 86, 219)
+  doc.setFillColor(...BLUE)
   doc.roundedRect(M, 28, 26, 26, 3, 3, 'F')
   doc.setFontSize(18)
   doc.setFont('helvetica', 'bold')
@@ -139,7 +139,7 @@ export async function generatePDF(data: PDFData): Promise<void> {
 
   doc.setFontSize(8)
   doc.setFont('helvetica', 'bold')
-  doc.setTextColor(96, 165, 250)
+  doc.setTextColor(45, 212, 191) // teal-300
   doc.text('FCC COMPLIANCE READINESS ASSESSMENT', W / 2, 82, { align: 'center' })
 
   doc.setFontSize(26)

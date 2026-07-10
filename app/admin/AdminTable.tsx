@@ -31,9 +31,9 @@ export type Submission = {
 
 function RiskBadge({ level }: { level: string }) {
   const styles: Record<string, string> = {
-    'Low Risk':      'bg-emerald-50 text-emerald-700 border border-emerald-200',
-    'Moderate Risk': 'bg-amber-50   text-amber-700   border border-amber-200',
-    'High Risk':     'bg-red-50     text-red-700     border border-red-200',
+    'Low Risk':      'bg-green-50  text-green-700  border border-green-200',
+    'Moderate Risk': 'bg-yellow-50 text-yellow-700 border border-yellow-200',
+    'High Risk':     'bg-red-50    text-red-700    border border-red-200',
   }
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${styles[level] ?? 'bg-slate-100 text-slate-600 border border-slate-200'}`}>
@@ -44,7 +44,7 @@ function RiskBadge({ level }: { level: string }) {
 
 function ScoreBar({ score, max }: { score: number; max: number }) {
   const pct   = Math.round((score / max) * 100)
-  const color = pct >= 80 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : 'bg-red-500'
+  const color = pct >= 80 ? 'bg-brand-low' : pct >= 50 ? 'bg-brand-moderate' : 'bg-brand-high'
   return (
     <div className="flex items-center gap-2.5">
       <div className="w-20 h-1.5 bg-slate-200 rounded-full overflow-hidden">
@@ -58,9 +58,9 @@ function ScoreBar({ score, max }: { score: number; max: number }) {
 function ScoreSummary({ s }: { s: Submission }) {
   const pct = Math.round((s.score / s.maxScore) * 100)
   const rc  = {
-    'Low Risk':      { bar: 'bg-emerald-500', text: 'text-emerald-600' },
-    'Moderate Risk': { bar: 'bg-amber-500',   text: 'text-amber-600'   },
-    'High Risk':     { bar: 'bg-red-500',      text: 'text-red-600'     },
+    'Low Risk':      { bar: 'bg-brand-low',      text: 'text-brand-low'      },
+    'Moderate Risk': { bar: 'bg-brand-moderate', text: 'text-brand-moderate' },
+    'High Risk':     { bar: 'bg-brand-high',     text: 'text-brand-high'     },
   }[s.riskLevel] ?? { bar: 'bg-slate-500', text: 'text-slate-600' }
 
   return (
@@ -94,10 +94,10 @@ function AnalysisPanel({ analysis }: { analysis: Analysis }) {
       label:     'Strengths',
       items:     analysis.strengths,
       Icon:      CheckCircle2,
-      headerCls: 'bg-emerald-50 border-b border-emerald-100',
-      titleCls:  'text-emerald-700',
-      iconBg:    'bg-emerald-500/10 border border-emerald-500/20',
-      dotCls:    'bg-emerald-100 border border-emerald-200 text-emerald-700',
+      headerCls: 'bg-green-50 border-b border-green-100',
+      titleCls:  'text-green-700',
+      iconBg:    'bg-brand-low/10 border border-brand-low/20',
+      dotCls:    'bg-green-100 border border-green-200 text-green-700',
     },
     {
       key:       'weaknesses',
@@ -114,18 +114,18 @@ function AnalysisPanel({ analysis }: { analysis: Analysis }) {
       label:     'Recommendations',
       items:     analysis.recommendations,
       Icon:      Lightbulb,
-      headerCls: 'bg-blue-50 border-b border-blue-100',
-      titleCls:  'text-blue-700',
-      iconBg:    'bg-blue-500/10 border border-blue-500/20',
-      dotCls:    'bg-blue-100 border border-blue-200 text-blue-700',
+      headerCls: 'bg-brand-teal/10 border-b border-brand-teal/20',
+      titleCls:  'text-brand-teal',
+      iconBg:    'bg-brand-teal/10 border border-brand-teal/20',
+      dotCls:    'bg-brand-teal/15 border border-brand-teal/30 text-brand-teal',
     },
   ]
 
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2 px-1">
-        <Lightbulb className="w-3.5 h-3.5 text-blue-600" />
-        <span className="text-blue-600 text-xs font-semibold uppercase tracking-widest">AI Analysis</span>
+        <Lightbulb className="w-3.5 h-3.5 text-brand-teal" />
+        <span className="text-brand-teal text-xs font-semibold uppercase tracking-widest">AI Analysis</span>
       </div>
       <div className="grid md:grid-cols-3 gap-3">
         {sections.map(({ key, label, items, Icon, headerCls, titleCls, iconBg, dotCls }) => (
@@ -163,8 +163,8 @@ export default function AdminTable({ submissions }: { submissions: Submission[] 
   if (submissions.length === 0) {
     return (
       <div className="bg-white border border-slate-200 rounded-xl shadow-card p-16 flex flex-col items-center text-center gap-4">
-        <div className="w-12 h-12 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-center justify-center">
-          <ClipboardList className="w-5 h-5 text-blue-600" />
+        <div className="w-12 h-12 bg-brand-teal/10 border border-brand-teal/20 rounded-xl flex items-center justify-center">
+          <ClipboardList className="w-5 h-5 text-brand-teal" />
         </div>
         <div>
           <p className="text-slate-900 font-semibold text-base mb-1">No submissions yet</p>
@@ -218,7 +218,7 @@ export default function AdminTable({ submissions }: { submissions: Submission[] 
                     <td className="px-5 py-4">
                       <button
                         onClick={e => { e.stopPropagation(); toggle(s.id) }}
-                        className="text-slate-400 hover:text-blue-600 transition-colors duration-150"
+                        className="text-slate-400 hover:text-brand-teal transition-colors duration-150"
                         aria-label="Toggle detail"
                       >
                         {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -255,7 +255,7 @@ export default function AdminTable({ submissions }: { submissions: Submission[] 
                                   <div className="flex items-center gap-2.5 shrink-0 ml-4">
                                     <span className="text-slate-700 text-xs capitalize">{r.answer}</span>
                                     <span className={`text-xs font-bold tabular-nums w-8 text-right ${
-                                      r.points === 10 ? 'text-emerald-600' : r.points === 5 ? 'text-amber-600' : 'text-red-600'
+                                      r.points === 10 ? 'text-brand-low' : r.points === 5 ? 'text-brand-moderate' : 'text-brand-high'
                                     }`}>+{r.points}</span>
                                   </div>
                                 </div>

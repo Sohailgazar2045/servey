@@ -128,13 +128,13 @@ function OptionButton({
 
   let cls = base
   if (!selected) {
-    cls += ' bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50 focus-visible:ring-blue-400'
+    cls += ' bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50 focus-visible:ring-brand-teal'
   } else if (variant === 'yes') {
-    cls += ' bg-emerald-600 border-emerald-600 text-white focus-visible:ring-emerald-400'
+    cls += ' bg-brand-low border-brand-low text-white focus-visible:ring-green-400'
   } else if (variant === 'partial') {
-    cls += ' bg-amber-500 border-amber-500 text-white focus-visible:ring-amber-400'
+    cls += ' bg-brand-moderate border-brand-moderate text-white focus-visible:ring-yellow-400'
   } else {
-    cls += ' bg-red-500 border-red-500 text-white focus-visible:ring-red-400'
+    cls += ' bg-brand-high border-brand-high text-white focus-visible:ring-red-400'
   }
 
   return (
@@ -153,9 +153,9 @@ function ScoreCircle({ score, maxScore, riskBadge }: {
   const circumference = 2 * Math.PI * r
   const fill          = (score / maxScore) * circumference
   const color =
-    riskBadge === 'low'      ? '#10B981' :
-    riskBadge === 'moderate' ? '#F59E0B' :
-                               '#EF4444'
+    riskBadge === 'low'      ? '#16A34A' :
+    riskBadge === 'moderate' ? '#CA8A04' :
+                               '#DC2626'
 
   return (
     <div className="relative w-36 h-36 flex-shrink-0">
@@ -187,9 +187,9 @@ function AnalysisCard({
   items:   string[]
 }) {
   const map = {
-    strength:       { label: 'Strengths',       Icon: CheckCircle2, dot: 'bg-emerald-500', border: 'border-emerald-200', header: 'bg-emerald-50',  title: 'text-emerald-800' },
-    weakness:       { label: 'Weaknesses',       Icon: XCircle,      dot: 'bg-red-500',     border: 'border-red-200',     header: 'bg-red-50',      title: 'text-red-800'     },
-    recommendation: { label: 'Recommendations',  Icon: AlertCircle,  dot: 'bg-blue-500',    border: 'border-blue-200',    header: 'bg-blue-50',     title: 'text-blue-800'    },
+    strength:       { label: 'Strengths',       Icon: CheckCircle2, dot: 'bg-brand-low',      border: 'border-green-200',  header: 'bg-green-50',      title: 'text-green-800'  },
+    weakness:       { label: 'Weaknesses',       Icon: XCircle,      dot: 'bg-brand-high',     border: 'border-red-200',    header: 'bg-red-50',        title: 'text-red-800'    },
+    recommendation: { label: 'Recommendations',  Icon: AlertCircle,  dot: 'bg-brand-teal',     border: 'border-brand-teal/20', header: 'bg-brand-teal/10', title: 'text-brand-teal' },
   }
   const { label, Icon, dot, border, header, title } = map[variant]
 
@@ -324,7 +324,7 @@ export default function Survey() {
   if (view === 'loading') {
     return (
       <div ref={loadingRef} className="bg-white rounded-2xl border border-slate-200 shadow-card p-16 flex flex-col items-center text-center gap-6 min-h-[320px] justify-center scroll-mt-24">
-        <div className="w-14 h-14 rounded-full border-[3px] border-slate-100 border-t-blue-600 animate-spin" />
+        <div className="w-14 h-14 rounded-full border-[3px] border-slate-100 border-t-brand-teal animate-spin" />
         <div>
           <p className="text-slate-900 font-semibold text-lg mb-1.5">{loadingMsg}</p>
           <p className="text-slate-400 text-sm">Usually takes 10–20 seconds</p>
@@ -347,7 +347,7 @@ export default function Survey() {
         </div>
         <button
           onClick={handleReset}
-          className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold px-5 py-2.5 rounded-lg transition-colors"
+          className="flex items-center gap-2 bg-brand-teal hover:bg-brand-teal-dark text-white font-semibold px-5 py-2.5 rounded-lg transition-colors"
         >
           <RotateCcw className="w-4 h-4" /> Try Again
         </button>
@@ -359,9 +359,9 @@ export default function Survey() {
 
   if (view === 'results' && result) {
     const riskStyle = {
-      low:      { pill: 'bg-emerald-100 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' },
-      moderate: { pill: 'bg-amber-100   text-amber-700   border-amber-200',   dot: 'bg-amber-500'   },
-      high:     { pill: 'bg-red-100     text-red-700     border-red-200',      dot: 'bg-red-500'     },
+      low:      { pill: 'bg-green-100  text-green-700  border-green-200',  dot: 'bg-brand-low'      },
+      moderate: { pill: 'bg-yellow-100 text-yellow-700 border-yellow-200', dot: 'bg-brand-moderate' },
+      high:     { pill: 'bg-red-100    text-red-700    border-red-200',    dot: 'bg-brand-high'     },
     }[result.riskBadge] ?? { pill: '', dot: '' }
 
     const date    = new Date(result.auditRecord.submissionDate)
@@ -403,7 +403,7 @@ export default function Survey() {
             <button
               onClick={handleDownloadPDF}
               disabled={pdfLoading}
-              className="flex-1 inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white font-semibold py-3.5 px-6 rounded-lg transition-colors"
+              className="flex-1 inline-flex items-center justify-center gap-2 bg-brand-teal hover:bg-brand-teal-dark disabled:bg-slate-400 text-white font-semibold py-3.5 px-6 rounded-lg transition-colors"
             >
               <Download className="w-4 h-4" />
               {pdfLoading ? 'Generating…' : 'Download PDF Report'}
@@ -455,13 +455,13 @@ export default function Survey() {
       <div className="bg-white rounded-2xl border border-slate-200 shadow-card px-6 py-4">
         <div className="flex items-center justify-between mb-2">
           <p className="text-sm font-semibold text-slate-700">Assessment Progress</p>
-          <span className={`text-sm font-bold tabular-nums ${answeredCount === 8 ? 'text-emerald-600' : 'text-slate-400'}`}>
+          <span className={`text-sm font-bold tabular-nums ${answeredCount === 8 ? 'text-brand-low' : 'text-slate-400'}`}>
             {answeredCount} / 8
           </span>
         </div>
         <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-500 ease-out ${answeredCount === 8 ? 'bg-emerald-500' : 'bg-blue-600'}`}
+            className={`h-full rounded-full transition-all duration-500 ease-out ${answeredCount === 8 ? 'bg-brand-low' : 'bg-brand-teal'}`}
             style={{ width: `${(answeredCount / 8) * 100}%` }}
           />
         </div>
@@ -491,7 +491,7 @@ export default function Survey() {
                 value={form[key]}
                 onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
                 placeholder={placeholder}
-                className={`w-full px-4 py-2.5 rounded-lg border text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-colors duration-150 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 ${
+                className={`w-full px-4 py-2.5 rounded-lg border text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-colors duration-150 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 ${
                   errors[key] ? 'border-red-400 bg-red-50/50' : 'border-slate-200 hover:border-slate-300'
                 }`}
               />
@@ -509,7 +509,7 @@ export default function Survey() {
               <select
                 value={form.industry}
                 onChange={e => setForm(p => ({ ...p, industry: e.target.value }))}
-                className={`w-full appearance-none px-4 py-2.5 pr-9 rounded-lg border text-sm outline-none transition-colors duration-150 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer ${
+                className={`w-full appearance-none px-4 py-2.5 pr-9 rounded-lg border text-sm outline-none transition-colors duration-150 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 cursor-pointer ${
                   !form.industry ? 'text-slate-400' : 'text-slate-900'
                 } ${errors.industry ? 'border-red-400 bg-red-50/50' : 'border-slate-200 hover:border-slate-300'}`}
               >
@@ -550,7 +550,7 @@ export default function Survey() {
               >
                 <div className="flex items-start gap-3.5 mb-4">
                   <span className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold transition-colors duration-200 ${
-                    answered ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400'
+                    answered ? 'bg-brand-teal text-white' : 'bg-slate-100 text-slate-400'
                   }`}>
                     {i + 1}
                   </span>
@@ -604,7 +604,7 @@ export default function Survey() {
               you have read this information and consent to participate. For questions regarding this
               study, or to report a compliance concern directly, please contact the Compliance Office
               at{' '}
-              <a href="mailto:compliance@aethyrlex.com" className="font-medium text-blue-600 hover:text-blue-700">
+              <a href="mailto:compliance@aethyrlex.com" className="font-medium text-brand-teal hover:text-brand-teal-dark">
                 compliance@aethyrlex.com
               </a>
               . Thank you for your cooperation.
@@ -628,7 +628,7 @@ export default function Survey() {
                 return next
               })
             }}
-            className="mt-0.5 h-4 w-4 shrink-0 accent-blue-600 cursor-pointer"
+            className="mt-0.5 h-4 w-4 shrink-0 accent-brand-teal cursor-pointer"
           />
           <span className="text-slate-600 text-sm leading-relaxed">
             I understand that this assessment is for informational purposes only, does not
@@ -643,7 +643,7 @@ export default function Survey() {
           <button
             type="button"
             onClick={handleSubmit}
-            className="group inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-semibold text-[15px] px-7 py-3.5 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+            className="group inline-flex items-center justify-center gap-2 bg-brand-teal hover:bg-brand-teal-dark disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-semibold text-[15px] px-7 py-3.5 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal focus-visible:ring-offset-2"
           >
             Submit Survey
             <ArrowRight className="w-4 h-4 transition-transform duration-150 group-hover:translate-x-0.5" />

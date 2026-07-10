@@ -20,19 +20,17 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-200 ${
-        scrolled
-          ? 'bg-white/90 backdrop-blur border-b border-slate-200'
-          : 'bg-transparent'
+      className={`fixed inset-x-0 top-0 z-50 bg-brand-page border-b border-white/10 transition-shadow duration-200 ${
+        scrolled ? 'shadow-lg shadow-black/20' : ''
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <a href="/" className="flex items-center gap-2.5">
-          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-600">
+          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/10">
             <Shield className="w-[18px] h-[18px] text-white" strokeWidth={2.2} />
           </span>
-          <span className="text-slate-900 font-semibold text-[17px] tracking-tight">
+          <span className="text-white font-semibold text-[17px] tracking-tight">
             ComplianceIQ
           </span>
         </a>
@@ -43,7 +41,7 @@ export default function Navbar() {
             <a
               key={label}
               href={href}
-              className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+              className="text-sm font-medium text-white/75 hover:text-white transition-colors"
             >
               {label}
             </a>
@@ -53,7 +51,7 @@ export default function Navbar() {
         {/* CTA */}
         <a
           href="#assessment"
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+          className="bg-brand-teal hover:bg-brand-teal-dark text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
         >
           Start Survey
         </a>

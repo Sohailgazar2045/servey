@@ -3,7 +3,7 @@ import SectionHeading from './SectionHeading'
 
 export default function SurveySection() {
   return (
-    <section id="survey" className="relative py-24 bg-slate-50 border-t border-slate-200/80 scroll-mt-16">
+    <section id="survey" className="relative py-24 bg-brand-canvas border-t border-slate-200/80 scroll-mt-16">
       <div className="absolute inset-0 hero-grid grid-mask opacity-60 pointer-events-none" />
       <div className="relative max-w-3xl mx-auto px-6">
 

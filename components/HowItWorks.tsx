@@ -35,7 +35,7 @@ export default function HowItWorks() {
           className="mb-16"
           eyebrow="Process"
           title="From question to report in three steps"
-          subtitle="No consultants, no lengthy forms. Get a clear picture of your compliance posture in the time it takes to drink a cup of coffee."
+          subtitle="No lengthy forms. Get a clear picture of your compliance posture in the time it takes to drink a cup of coffee."
         />
 
         {/* steps */}
@@ -47,7 +47,7 @@ export default function HowItWorks() {
               data-reveal-delay={String(i * 100)}
             >
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-11 h-11 bg-blue-600 rounded-lg flex items-center justify-center">
+                <div className="w-11 h-11 bg-brand-page rounded-lg flex items-center justify-center">
                   <Icon className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-xs font-semibold uppercase tracking-widest text-slate-400">

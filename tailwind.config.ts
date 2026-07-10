@@ -14,6 +14,23 @@ const config: Config = {
           blue:       '#1A56DB',
           'blue-lt':  '#3F7AEB',
           sky:        '#EBF2FF',
+
+          // ─── 2026 palette ───────────────────────────────────────────
+          // First page / marketing header — Deep Navy Blue
+          page:        '#163A5F',
+          'page-dark': '#0F2A46',
+          // Reports & Dashboards (admin)
+          report:      '#1F2937',
+          'report-dark':'#111827',
+          // Buttons & status indicators — Teal
+          teal:        '#0D9488',
+          'teal-dark': '#0B7C72',
+          // Off-white surface / reports background
+          canvas:      '#F8FAFC',
+          // Risk tiers
+          low:         '#16A34A', // Low Risk / Compliant
+          moderate:    '#CA8A04', // Moderate Risk
+          high:        '#DC2626', // High Risk
         },
       },
       fontFamily: {

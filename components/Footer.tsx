@@ -18,7 +18,7 @@ export default function Footer() {
           {/* brand */}
           <div className="max-w-xs">
             <a href="/" className="flex items-center gap-2.5 mb-4">
-              <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-600">
+              <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-brand-page">
                 <Shield className="w-[18px] h-[18px] text-white" strokeWidth={2.2} />
               </span>
               <span className="text-slate-900 font-semibold text-[17px] tracking-tight">
@@ -41,7 +41,7 @@ export default function Footer() {
                 <li key={label}>
                   <a
                     href={href}
-                    className="text-slate-500 hover:text-blue-600 text-sm transition-colors duration-150"
+                    className="text-slate-500 hover:text-brand-teal text-sm transition-colors duration-150"
                   >
                     {label}
                   </a>
@@ -60,7 +60,7 @@ export default function Footer() {
             </p>
             <a
               href="mailto:compliance@aethyrlex.com"
-              className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+              className="inline-flex items-center gap-2 text-sm font-medium text-brand-teal hover:text-brand-teal-dark transition-colors"
             >
               <Mail className="w-4 h-4" />
               compliance@aethyrlex.com
