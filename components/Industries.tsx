@@ -49,7 +49,7 @@ export default function Industries() {
         <SectionHeading
           className="mb-16"
           eyebrow="Who It's For"
-          title="Built for every regulated entity"
+          title="Built for FCC-regulated organizations"
           subtitle="The assessment adapts its AI analysis to your industry — so recommendations are specific to your regulatory context, not generic boilerplate."
         />
 

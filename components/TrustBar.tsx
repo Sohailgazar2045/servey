@@ -10,7 +10,7 @@ export default function TrustBar() {
     <section className="relative bg-white border-y border-slate-200/80">
       <div className="max-w-7xl mx-auto px-6 py-12">
         <p className="text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400 mb-8">
-          Built for regulated industries
+          Purpose-built for FCC compliance
         </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-y-8 md:divide-x divide-slate-200">
           {STATS.map((stat, i) => (
