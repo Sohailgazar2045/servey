@@ -36,7 +36,7 @@ const INDUSTRIES = [
     Icon: Building2,
     name: 'Other Organizations',
     description:
-      'Any entity operating under FCC jurisdiction that needs a clear, documented picture of their current compliance standing.',
+      'Other FCC licensees and regulated operators that need a clear, documented picture of their current compliance standing.',
   },
 ]
 
