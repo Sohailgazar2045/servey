@@ -14,6 +14,8 @@ interface FormState {
   contactName: string
   email:       string
   industry:    string
+  /** Segmentation only — not scored, does not affect the 80-point framework. */
+  isLicensedBroadcaster: string
 }
 
 interface ResultPayload {
@@ -107,10 +109,20 @@ const INDUSTRIES = [
   'Consultant', 'Law Firm', 'Other',
 ]
 
+/**
+ * Classification question — segmentation data only.
+ * Deliberately kept out of QUESTIONS so it is never scored and both
+ * answers lead to the same next question (no branching or skip logic).
+ */
+const BROADCASTER_OPTIONS = [
+  { value: 'yes', label: 'Yes', variant: 'neutral' },
+  { value: 'no',  label: 'No',  variant: 'neutral' },
+]
+
 const LOADING_STEPS = [
   'Calculating your compliance score…',
   'Analyzing response patterns…',
-  'Generating AI recommendations…',
+  'Generating your recommendations…',
   'Preparing your report…',
 ]
 
@@ -133,6 +145,8 @@ function OptionButton({
     cls += ' bg-brand-low border-brand-low text-white focus-visible:ring-green-400'
   } else if (variant === 'partial') {
     cls += ' bg-brand-moderate border-brand-moderate text-white focus-visible:ring-yellow-400'
+  } else if (variant === 'neutral') {
+    cls += ' bg-brand-teal border-brand-teal text-white focus-visible:ring-brand-teal'
   } else {
     cls += ' bg-brand-high border-brand-high text-white focus-visible:ring-red-400'
   }
@@ -216,6 +230,7 @@ function AnalysisCard({
 export default function Survey() {
   const [form, setForm] = useState<FormState>({
     companyName: '', contactName: '', email: '', industry: '',
+    isLicensedBroadcaster: '',
   })
   const [answers,    setAnswers]    = useState<Record<number, string>>({})
   const [view,       setView]       = useState<'form' | 'loading' | 'results' | 'error'>('form')
@@ -263,6 +278,8 @@ export default function Survey() {
     if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       e.email = 'Enter a valid email'
     if (!form.industry) e.industry = 'Select an industry'
+    if (!form.isLicensedBroadcaster)
+      e.isLicensedBroadcaster = 'Please select Yes or No to continue'
     if (answeredCount < 8)
       e.answers = `${8 - answeredCount} question${8 - answeredCount !== 1 ? 's' : ''} still unanswered`
     if (!agreed)
@@ -310,7 +327,10 @@ export default function Survey() {
   }
 
   function handleReset() {
-    setForm({ companyName: '', contactName: '', email: '', industry: '' })
+    setForm({
+      companyName: '', contactName: '', email: '', industry: '',
+      isLicensedBroadcaster: '',
+    })
     setAnswers({})
     setResult(null)
     setErrors({})
@@ -387,6 +407,10 @@ export default function Survey() {
               </p>
               <p className="text-slate-500 text-sm mt-1">
                 Scored {result.score} of {result.maxScore} points ({Math.round((result.score / result.maxScore) * 100)}%)
+              </p>
+              <p className="text-slate-400 text-xs mt-2 leading-relaxed">
+                Scored against the AethyrLex 80-point framework — a fixed, rules-based
+                rubric. AI is used only to interpret your responses below.
               </p>
             </div>
           </div>
@@ -525,6 +549,46 @@ export default function Survey() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Classification — segmentation only, not scored */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-6">
+        <div className="mb-5">
+          <h3 className="text-slate-900 text-sm font-semibold">Organization Type</h3>
+          <p className="text-slate-400 text-xs mt-0.5">
+            Used for segmentation only — this answer is not scored.
+          </p>
+        </div>
+        <div
+          className={`p-5 rounded-lg border transition-colors duration-200 ${
+            form.isLicensedBroadcaster ? 'border-slate-200 bg-slate-50/70' : 'border-slate-200 bg-white'
+          }`}
+        >
+          <div className="flex items-start gap-3.5 mb-4">
+            <span className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center transition-colors duration-200 ${
+              form.isLicensedBroadcaster ? 'bg-brand-teal text-white' : 'bg-slate-100 text-slate-400'
+            }`}>
+              <Info className="w-3.5 h-3.5" />
+            </span>
+            <p className="text-slate-800 font-medium text-[15px] leading-snug pt-0.5">
+              Are you a licensed broadcaster?
+            </p>
+          </div>
+          <div className="grid grid-cols-3 gap-2.5">
+            {BROADCASTER_OPTIONS.map(opt => (
+              <OptionButton
+                key={opt.value}
+                variant={opt.variant}
+                label={opt.label}
+                selected={form.isLicensedBroadcaster === opt.value}
+                onClick={() => setForm(p => ({ ...p, isLicensedBroadcaster: opt.value }))}
+              />
+            ))}
+          </div>
+        </div>
+        {errors.isLicensedBroadcaster && (
+          <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.isLicensedBroadcaster}</p>
+        )}
       </div>
 
       {/* Questions */}

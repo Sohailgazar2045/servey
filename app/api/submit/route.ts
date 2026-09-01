@@ -29,12 +29,18 @@ function getRisk(score: number) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { companyName, contactName, email, industry, answers } = body
+    const { companyName, contactName, email, industry, answers,
+            isLicensedBroadcaster } = body
 
     if (!companyName || !contactName || !email || !industry ||
+        !isLicensedBroadcaster ||
         !Array.isArray(answers) || answers.length !== 8) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
+
+    // Segmentation only — deliberately excluded from scoring and from the
+    // AI prompt so it cannot influence the score or the recommendations.
+    const isBroadcaster = String(isLicensedBroadcaster).toLowerCase() === 'yes'
 
     // ── Score ─────────────────────────────────────────────────────────────
     let score = 0
@@ -100,6 +106,7 @@ Guidelines:
       contact_name:    contactName,
       email,
       industry,
+      is_licensed_broadcaster: isBroadcaster,
       responses:       scoredAnswers,
       score,
       max_score:       80,
@@ -118,6 +125,7 @@ Guidelines:
       contactName,
       user:           email,
       industry,
+      isLicensedBroadcaster: isBroadcaster,
       responses:      scoredAnswers,
       score,
       maxScore:       80,

@@ -11,6 +11,8 @@ create table if not exists public.survey_submissions (
   contact_name    text        not null,
   email           text        not null,
   industry        text        not null,
+  -- Segmentation only: not scored, excluded from the 80-point framework.
+  is_licensed_broadcaster boolean,
   responses       jsonb       not null,        -- [{ question, answer, points }]
   score           integer     not null,
   max_score       integer     not null default 80,

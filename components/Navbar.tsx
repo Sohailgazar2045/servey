@@ -30,8 +30,13 @@ export default function Navbar() {
           <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/10">
             <Shield className="w-[18px] h-[18px] text-white" strokeWidth={2.2} />
           </span>
-          <span className="text-white font-semibold text-[17px] tracking-tight">
-            ComplianceIQ
+          <span className="flex flex-col leading-none">
+            <span className="text-white font-semibold text-[17px] tracking-tight">
+              ComplianceIQ
+            </span>
+            <span className="text-white/50 text-[10px] font-medium tracking-wide mt-0.5">
+              by AethyrLex
+            </span>
           </span>
         </a>
 

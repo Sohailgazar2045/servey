@@ -11,8 +11,8 @@ export default function SurveySection() {
         <SectionHeading
           className="mb-12"
           eyebrow="Free · No Account Required"
-          title="Take the FCC Compliance Assessment"
-          subtitle="Complete the form below. Your compliance score, risk level, and AI-generated recommendations appear instantly — along with a downloadable PDF report."
+          title="Take the AethyrLex Compliance Assessment"
+          subtitle="Complete the form below. Your compliance score, risk level, and prioritized recommendations appear instantly — along with a downloadable PDF report."
         />
 
         <Survey />

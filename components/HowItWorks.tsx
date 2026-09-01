@@ -7,21 +7,21 @@ const STEPS = [
     Icon: ClipboardList,
     title: 'Complete the Assessment',
     description:
-      'Answer 8 targeted questions covering critical FCC compliance domains — from documentation practices to audit readiness. Takes under 3 minutes.',
+      'Answer 8 targeted questions covering critical FCC compliance domains — from documentation practices to audit readiness. Built on the AethyrLex compliance framework with AI-powered analysis. Takes under 3 minutes.',
   },
   {
     number: '02',
     Icon: BarChart3,
     title: 'Receive Your Score',
     description:
-      'Get an instant compliance score out of 80 points, mapped to a risk tier. AI analyzes your specific responses for industry-relevant context.',
+      'Get an instant compliance score out of 80 points, mapped to a risk tier. It analyzes your specific responses for industry relevant context.',
   },
   {
     number: '03',
     Icon: FileDown,
     title: 'Download Your Report',
     description:
-      'Download a professional PDF with your score, AI-identified strengths and gaps, prioritized recommendations, and a complete audit trail.',
+      'Download a professional PDF with your score, identified strengths and gaps, prioritized recommendations and a complete audit trail.',
   },
 ]
 
@@ -35,7 +35,7 @@ export default function HowItWorks() {
           className="mb-16"
           eyebrow="Process"
           title="From question to report in three steps"
-          subtitle="No lengthy forms. Get a clear picture of your compliance posture in the time it takes to drink a cup of coffee."
+          subtitle="No lengthy forms. Your score comes from the AethyrLex framework — a fixed, rules-based rubric — with AI used to interpret your responses, not to grade them."
         />
 
         {/* steps */}

@@ -21,13 +21,19 @@ export default function Footer() {
               <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-brand-page">
                 <Shield className="w-[18px] h-[18px] text-white" strokeWidth={2.2} />
               </span>
-              <span className="text-slate-900 font-semibold text-[17px] tracking-tight">
-                ComplianceIQ
+              <span className="flex flex-col leading-none">
+                <span className="text-slate-900 font-semibold text-[17px] tracking-tight">
+                  ComplianceIQ
+                </span>
+                <span className="text-slate-400 text-[10px] font-medium tracking-wide mt-0.5">
+                  by AethyrLex
+                </span>
               </span>
             </a>
             <p className="text-slate-500 text-sm leading-relaxed">
-              Instant FCC compliance assessment — score, risk rating, and AI-powered
-              recommendations in under three minutes.
+              Instant FCC compliance assessment — score, risk rating, and prioritized
+              recommendations in under three minutes. Scored against the AethyrLex
+              80-point framework.
             </p>
           </div>
 
@@ -71,7 +77,7 @@ export default function Footer() {
         {/* bottom bar */}
         <div className="mt-12 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-slate-400 text-sm">
-            © 2026 ComplianceIQ. All rights reserved.
+            © 2026 AethyrLex. All rights reserved.
           </p>
           <p className="text-slate-400 text-xs">
             Informational tool only — does not constitute legal advice.

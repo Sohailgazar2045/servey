@@ -21,7 +21,7 @@ export default function Hero() {
             {/* eyebrow */}
             <div className="inline-flex items-center gap-2 text-brand-teal text-sm font-semibold mb-6">
               <span className="w-6 h-px bg-brand-teal" />
-              FCC Compliance Assessment Platform
+              AethyrLex · FCC Compliance Assessment
             </div>
 
             <h1 className="text-white font-bold text-5xl xl:text-[58px] leading-[1.05] tracking-tight mb-6">
@@ -34,7 +34,7 @@ export default function Hero() {
 
             <p className="text-white/70 text-lg leading-relaxed mb-9 max-w-[540px]">
               Answer 8 questions and receive an instant compliance score, risk rating, and
-              AI-generated recommendations — documented and ready to share with counsel.
+              prioritized recommendations — documented and ready to share with counsel.
             </p>
 
             {/* proof points */}

@@ -4,21 +4,21 @@ import SectionHeading from './SectionHeading'
 const FEATURES = [
   {
     Icon: BarChart2,
-    title: '80-Point Scoring Framework',
+    title: 'AethyrLex 80-Point Framework',
     description:
-      'A structured model across 8 FCC compliance domains, weighted by regulatory impact and tied to documented best practices.',
+      'A structured model across 8 FCC compliance domains, weighted by regulatory impact and tied to documented best practices. Fixed thresholds mean the same answers always produce the same score.',
   },
   {
     Icon: Bot,
     title: 'AI-Powered Analysis',
     description:
-      "Gemini analyzes your specific responses to generate targeted strengths, gaps, and recommendations — not generic templates copied from a checklist.",
+      "Your specific responses are analyzed to generate targeted strengths, gaps, and recommendations — not generic templates copied from a checklist. AI interprets your answers; the AethyrLex framework scores them.",
   },
   {
     Icon: FileText,
     title: 'Professional PDF Report',
     description:
-      'A formatted report with cover page, score summary, detailed Q&A findings, AI recommendations, and full audit metadata.',
+      'A formatted report with cover page, score summary, detailed Q&A findings, prioritized recommendations, and full audit metadata.',
   },
   {
     Icon: Lock,

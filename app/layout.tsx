@@ -8,14 +8,14 @@ const inter = Inter({
   display: 'swap',
 })
 
-const title = 'FCC Compliance Readiness Assessment | ComplianceIQ'
+const title = 'FCC Compliance Readiness Assessment | AethyrLex'
 const description =
-  'Assess your FCC compliance posture in under 3 minutes. Get an instant score, risk rating, and AI-powered recommendations tailored to your industry.'
+  'Assess your FCC compliance posture in under 3 minutes. Scored against the AethyrLex 80-point framework, with an instant risk rating and prioritized recommendations tailored to your industry.'
 
 export const metadata: Metadata = {
   title: {
     default: title,
-    template: '%s | ComplianceIQ',
+    template: '%s | AethyrLex',
   },
   description,
   applicationName: 'ComplianceIQ',
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     title,
     description,
-    siteName: 'ComplianceIQ',
+    siteName: 'AethyrLex',
     type: 'website',
   },
   twitter: {

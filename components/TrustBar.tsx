@@ -1,5 +1,5 @@
 const STATS = [
-  { value: '500+',  label: 'Assessments Completed'      },
+  { value: '3',     label: 'Risk Tiers Classified'      },
   { value: '< 3m',  label: 'Average Completion Time'    },
   { value: '8',     label: 'Compliance Domains Covered' },
   { value: '80pt',  label: 'Scoring Framework'          },
