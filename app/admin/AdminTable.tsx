@@ -2,10 +2,11 @@
 import React, { useState } from 'react'
 import {
   Clock, ChevronDown, ChevronUp, ClipboardList,
-  CheckCircle2, AlertTriangle, Lightbulb,
+  CheckCircle2, AlertTriangle, AlertCircle, Info, Lightbulb, Radio, Route,
 } from 'lucide-react'
+import type { DeviceAssessment, Severity } from '@/lib/deviceSurvey'
 
-type Response = { question: string; answer: string; points: number }
+type Response = { question: string; answer: string; points: number; maxPoints?: number }
 type Analysis = {
   strengths:       string[]
   weaknesses:      string[]
@@ -25,6 +26,8 @@ export type Submission = {
   maxScore:       number
   riskLevel:      string
   analysis:       Analysis | null
+  /** Device / RF pre-survey section — null for submissions made before v2.0. */
+  device:         DeviceAssessment | null
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -153,6 +156,76 @@ function AnalysisPanel({ analysis }: { analysis: Analysis }) {
   )
 }
 
+const SEVERITY_ICON: Record<Severity, { Icon: typeof AlertTriangle; cls: string }> = {
+  high:   { Icon: AlertTriangle, cls: 'text-brand-high' },
+  medium: { Icon: AlertCircle,   cls: 'text-brand-moderate' },
+  low:    { Icon: Info,          cls: 'text-slate-400' },
+}
+
+function DevicePanel({ device }: { device: DeviceAssessment }) {
+  let lastModule = ''
+  return (
+    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-200 bg-slate-50">
+        <Radio className="w-3.5 h-3.5 text-brand-teal" />
+        <span className="text-brand-teal text-xs font-semibold uppercase tracking-widest">Device RF Findings</span>
+      </div>
+      <div className="px-4 py-4 space-y-4">
+        <div className="flex items-start gap-2">
+          <Route className="w-3.5 h-3.5 text-brand-teal mt-0.5 shrink-0" />
+          <p className="text-slate-700 text-xs leading-relaxed">{device.pathway}</p>
+        </div>
+        {device.summary && <p className="text-slate-700 text-[12px] leading-relaxed">{device.summary}</p>}
+
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-widest mb-2">Risk Flags ({device.flags.length})</p>
+            {device.flags.length ? (
+              <div className="space-y-2">
+                {device.flags.map(f => {
+                  const { Icon, cls } = SEVERITY_ICON[f.severity]
+                  return (
+                    <div key={f.id} className="flex items-start gap-2">
+                      <Icon className={`w-3.5 h-3.5 mt-0.5 shrink-0 ${cls}`} />
+                      <div>
+                        <p className="text-slate-800 text-[12px] font-semibold leading-snug">{f.title}</p>
+                        <p className="text-slate-400 text-[10px] font-semibold uppercase tracking-wider">{f.severity} · {f.category}</p>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : <p className="text-slate-500 text-xs">No risks flagged.</p>}
+            {device.missingInformation.length > 0 && (
+              <>
+                <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-widest mt-4 mb-2">Information to Gather</p>
+                <ul className="list-disc pl-4 space-y-1">
+                  {device.missingInformation.map((m, i) => <li key={i} className="text-slate-700 text-[12px]">{m}</li>)}
+                </ul>
+              </>
+            )}
+          </div>
+          <div className="bg-slate-50 border border-slate-200 rounded-lg divide-y divide-slate-200">
+            {device.responses.map((r, i) => {
+              const header = r.module !== lastModule
+              lastModule = r.module
+              return (
+                <React.Fragment key={i}>
+                  {header && <p className="px-3 py-1.5 bg-slate-100 text-brand-teal text-[10px] font-bold uppercase tracking-widest">{r.module}</p>}
+                  <div className="grid grid-cols-2 gap-3 px-3 py-2">
+                    <p className="text-slate-500 text-[11px] leading-snug">{r.question}</p>
+                    <p className="text-slate-800 text-[11px] font-medium leading-snug break-words">{r.answer}</p>
+                  </div>
+                </React.Fragment>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 export default function AdminTable({ submissions }: { submissions: Submission[] }) {
@@ -242,6 +315,8 @@ export default function AdminTable({ submissions }: { submissions: Submission[] 
                             )
                           }
 
+                          {s.device && <DevicePanel device={s.device} />}
+
                           {/* Question Responses */}
                           <div className="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
                             <div className="px-4 py-3 border-b border-slate-200">
@@ -254,9 +329,9 @@ export default function AdminTable({ submissions }: { submissions: Submission[] 
                                   <p className="text-slate-700 text-xs leading-relaxed flex-1 min-w-0">{r.question}</p>
                                   <div className="flex items-center gap-2.5 shrink-0 ml-4">
                                     <span className="text-slate-700 text-xs capitalize">{r.answer}</span>
-                                    <span className={`text-xs font-bold tabular-nums w-8 text-right ${
-                                      r.points === 10 ? 'text-brand-low' : r.points === 5 ? 'text-brand-moderate' : 'text-brand-high'
-                                    }`}>+{r.points}</span>
+                                    <span className={`text-xs font-bold tabular-nums w-12 text-right ${
+                                      r.points >= (r.maxPoints ?? 10) ? 'text-brand-low' : r.points > 0 ? 'text-brand-moderate' : 'text-brand-high'
+                                    }`}>{r.points}/{r.maxPoints ?? 10}</span>
                                   </div>
                                 </div>
                               ))}

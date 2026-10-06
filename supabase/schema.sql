@@ -28,3 +28,17 @@ create index if not exists survey_submissions_submission_date_idx
 -- The app connects with the service_role key (server-side only), which bypasses
 -- Row Level Security. Enable RLS so the anon/public key cannot read the table.
 alter table public.survey_submissions enable row level security;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Survey v2.0 — the homepage survey now also includes the five device / RF
+-- pre-survey modules. Adds their columns to survey_submissions.
+
+alter table public.survey_submissions
+  add column if not exists device_answers    jsonb,   -- raw DeviceAnswers
+  add column if not exists device_assessment jsonb,   -- { readiness, pathway, flags, responses, summary, missingInformation }
+  add column if not exists readiness_level   text;    -- 'Ready for Testing' | 'Needs Attention' | 'High Risk'
+
+-- Survey v2.0 scoring: 8 questions × 5 pts (partial answers = 2.5) + 5 RF risk
+-- areas × 8 pts = 80. Half points need a numeric score column.
+alter table public.survey_submissions
+  alter column score type numeric;

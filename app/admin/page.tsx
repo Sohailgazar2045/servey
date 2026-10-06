@@ -16,6 +16,11 @@ const QUESTIONS_SHORT = [
   '48-hour audit readiness',
   'Documented communications',
   'Corrective action process',
+  'RF: Missing RF data',
+  'RF: Non-certified module',
+  'RF: Multiple radios',
+  'RF: Unclear frequency band',
+  'RF: Antenna modification',
 ]
 
 async function getSubmissions(): Promise<Submission[]> {
@@ -45,6 +50,7 @@ async function getSubmissions(): Promise<Submission[]> {
     maxScore:       row.max_score,
     riskLevel:      row.risk_level,
     analysis:       row.analysis ?? null,
+    device:         row.device_assessment ?? null,
   }))
 }
 
@@ -72,15 +78,19 @@ export default async function AdminPage() {
   // Question performance
   const questionStats = QUESTIONS_SHORT.map((label, i) => {
     if (!total) return { label, passPct: 0, partialPct: 0, failPct: 0 }
+    // RF risk areas (index 8+) only exist on v2.0 submissions, so use the
+    // number of submissions that actually have this item as the denominator.
     const responses = submissions.map(s => s.responses?.[i]).filter(Boolean)
-    const pass    = responses.filter(r => r.points === 10).length
-    const partial = responses.filter(r => r.points === 5).length
+    const n       = responses.length || 1
+    const max     = (r: { maxPoints?: number }) => r.maxPoints ?? 10
+    const pass    = responses.filter(r => r.points >= max(r)).length
+    const partial = responses.filter(r => r.points > 0 && r.points < max(r)).length
     const fail    = responses.filter(r => r.points === 0).length
     return {
       label,
-      passPct:    Math.round((pass    / total) * 100),
-      partialPct: Math.round((partial / total) * 100),
-      failPct:    Math.round((fail    / total) * 100),
+      passPct:    Math.round((pass    / n) * 100),
+      partialPct: Math.round((partial / n) * 100),
+      failPct:    Math.round((fail    / n) * 100),
     }
   })
 

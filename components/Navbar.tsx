@@ -55,7 +55,7 @@ export default function Navbar() {
 
         {/* CTA */}
         <a
-          href="#assessment"
+          href="#survey"
           className="bg-brand-teal hover:bg-brand-teal-dark text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
         >
           Start Survey

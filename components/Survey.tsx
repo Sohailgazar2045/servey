@@ -3,9 +3,14 @@
 import { useState, useEffect, useRef } from 'react'
 import {
   CheckCircle2, XCircle, AlertCircle,
-  Download, RotateCcw, ArrowRight, ChevronDown, Info,
+  Download, RotateCcw, ArrowRight, ChevronDown, Info, Route,
 } from 'lucide-react'
 import type { PDFData } from '@/lib/generatePDF'
+import {
+  MODULES, EMPTY_ANSWERS, validateModule,
+  type DeviceAnswers, type DeviceAssessment, type Severity,
+} from '@/lib/deviceSurvey'
+import { DeviceModuleFields, FlagRow, SEVERITY_STYLE } from './DeviceModuleFields'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -29,11 +34,12 @@ interface ResultPayload {
     weaknesses:      string[]
     recommendations: string[]
   }
+  device: DeviceAssessment
   auditRecord: {
     submissionDate: string
     surveyVersion:  string
     scoreGenerated: string
-    responses: { question: string; answer: string; points: number }[]
+    responses: { question: string; answer: string; points: number; maxPoints?: number }[]
   }
 }
 
@@ -225,6 +231,67 @@ function AnalysisCard({
   )
 }
 
+function DeviceResultCard({ device }: { device: DeviceAssessment }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 shadow-card overflow-hidden bg-white">
+      <div className="bg-slate-50 px-5 py-3.5 flex items-center gap-2.5 border-b border-slate-200">
+        <AlertCircle className="w-4 h-4 text-slate-500" />
+        <span className="font-bold text-sm text-slate-900">Device RF Findings</span>
+      </div>
+      <div className="px-5 py-5 space-y-5">
+        <div className="grid grid-cols-3 gap-3">
+          {(['high', 'medium', 'low'] as Severity[]).map(s => {
+            const n = device.flags.filter(f => f.severity === s).length
+            return (
+              <div key={s} className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+                <p className="text-2xl font-bold text-slate-900 tabular-nums">{n}</p>
+                <p className="text-xs text-slate-500 font-medium">{SEVERITY_STYLE[s].label} risk{n !== 1 ? 's' : ''}</p>
+              </div>
+            )
+          })}
+        </div>
+
+        <div className="flex items-start gap-3 rounded-lg bg-brand-teal/5 border border-brand-teal/20 p-4">
+          <Route className="w-4 h-4 text-brand-teal mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="text-xs font-semibold text-brand-teal uppercase tracking-wider mb-1">Likely certification path</p>
+            <p className="text-slate-700 text-sm leading-relaxed">{device.pathway}</p>
+          </div>
+        </div>
+
+        {device.summary && (
+          <p className="text-slate-700 text-[14px] leading-relaxed">{device.summary}</p>
+        )}
+
+        {device.flags.length ? (
+          <div className="divide-y divide-slate-100">
+            {device.flags.map(f => <FlagRow key={f.id} flag={f} />)}
+          </div>
+        ) : (
+          <div className="flex items-center gap-2.5 text-sm text-slate-700">
+            <CheckCircle2 className="w-4 h-4 text-brand-low" />
+            No RF risks identified from the information provided.
+          </div>
+        )}
+
+        {device.missingInformation.length > 0 && (
+          <div>
+            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-3">Information to gather</p>
+            <div className="space-y-2.5">
+              {device.missingInformation.map((item, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <div className="w-1.5 h-1.5 rounded-full mt-[7px] flex-shrink-0 bg-brand-moderate" />
+                  <p className="text-slate-700 text-[14px] leading-relaxed">{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function Survey() {
@@ -233,6 +300,7 @@ export default function Survey() {
     isLicensedBroadcaster: '',
   })
   const [answers,    setAnswers]    = useState<Record<number, string>>({})
+  const [device,     setDevice]     = useState<DeviceAnswers>(EMPTY_ANSWERS)
   const [view,       setView]       = useState<'form' | 'loading' | 'results' | 'error'>('form')
   const [loadingMsg, setLoadingMsg] = useState(LOADING_STEPS[0])
   const [result,     setResult]     = useState<ResultPayload | null>(null)
@@ -245,6 +313,19 @@ export default function Survey() {
   const loadingRef = useRef<HTMLDivElement>(null)
 
   const answeredCount = Object.keys(answers).length
+  const modulesDone   = MODULES.filter((_, m) => !Object.keys(validateModule(m, device)).length).length
+  const totalSteps    = 8 + MODULES.length
+  const doneSteps     = answeredCount + modulesDone
+
+  function setDeviceField<K extends keyof DeviceAnswers>(key: K, value: DeviceAnswers[K]) {
+    setDevice(prev => ({ ...prev, [key]: value }))
+    setErrors(prev => {
+      if (!prev[key]) return prev
+      const next = { ...prev }
+      delete next[key]
+      return next
+    })
+  }
 
   // Cycle loading messages
   useEffect(() => {
@@ -282,6 +363,11 @@ export default function Survey() {
       e.isLicensedBroadcaster = 'Please select Yes or No to continue'
     if (answeredCount < 8)
       e.answers = `${8 - answeredCount} question${8 - answeredCount !== 1 ? 's' : ''} still unanswered`
+    MODULES.forEach((_, m) => Object.assign(e, validateModule(m, device)))
+    if (modulesDone < MODULES.length) {
+      const left = MODULES.length - modulesDone
+      e.device = `${left} device module${left !== 1 ? 's' : ''} still incomplete`
+    }
     if (!agreed)
       e.agreed = 'Please confirm the acknowledgment above to continue'
     return e
@@ -299,7 +385,7 @@ export default function Survey() {
       const res  = await fetch('/api/submit', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ ...form, answers: answersArray }),
+        body:    JSON.stringify({ ...form, answers: answersArray, device }),
       })
       const data = await res.json()
       if (!res.ok || !data.success) throw new Error(data.error ?? 'Submission failed')
@@ -332,6 +418,7 @@ export default function Survey() {
       isLicensedBroadcaster: '',
     })
     setAnswers({})
+    setDevice(EMPTY_ANSWERS)
     setResult(null)
     setErrors({})
     setAgreed(false)
@@ -409,7 +496,8 @@ export default function Survey() {
                 Scored {result.score} of {result.maxScore} points ({Math.round((result.score / result.maxScore) * 100)}%)
               </p>
               <p className="text-slate-400 text-xs mt-2 leading-relaxed">
-                Scored against the AethyrLex 80-point framework — a fixed, rules-based
+                Scored against the AethyrLex 80-point framework — 8 compliance questions
+                (40 pts) and 5 RF risk areas (40 pts), using a fixed, rules-based
                 rubric. AI is used only to interpret your responses below.
               </p>
             </div>
@@ -420,6 +508,9 @@ export default function Survey() {
         <AnalysisCard variant="strength"       items={result.analysis.strengths}       />
         <AnalysisCard variant="weakness"       items={result.analysis.weaknesses}      />
         <AnalysisCard variant="recommendation" items={result.analysis.recommendations} />
+
+        {/* Device / RF risk assessment */}
+        <DeviceResultCard device={result.device} />
 
         {/* Actions */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-6">
@@ -479,18 +570,24 @@ export default function Survey() {
       <div className="bg-white rounded-2xl border border-slate-200 shadow-card px-6 py-4">
         <div className="flex items-center justify-between mb-2">
           <p className="text-sm font-semibold text-slate-700">Assessment Progress</p>
-          <span className={`text-sm font-bold tabular-nums ${answeredCount === 8 ? 'text-brand-low' : 'text-slate-400'}`}>
-            {answeredCount} / 8
+          <span className={`text-sm font-bold tabular-nums ${doneSteps === totalSteps ? 'text-brand-low' : 'text-slate-400'}`}>
+            {doneSteps} / {totalSteps}
           </span>
         </div>
         <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-500 ease-out ${answeredCount === 8 ? 'bg-brand-low' : 'bg-brand-teal'}`}
-            style={{ width: `${(answeredCount / 8) * 100}%` }}
+            className={`h-full rounded-full transition-all duration-500 ease-out ${doneSteps === totalSteps ? 'bg-brand-low' : 'bg-brand-teal'}`}
+            style={{ width: `${(doneSteps / totalSteps) * 100}%` }}
           />
         </div>
+        <p className="text-slate-400 text-xs mt-1.5">
+          {answeredCount}/8 compliance questions · {modulesDone}/{MODULES.length} device modules
+        </p>
         {errors.answers && (
           <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.answers}</p>
+        )}
+        {errors.device && (
+          <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.device}</p>
         )}
       </div>
 
@@ -596,7 +693,7 @@ export default function Survey() {
         <div className="flex items-center justify-between mb-5">
           <div>
             <h3 className="text-slate-900 text-sm font-semibold">Compliance Assessment</h3>
-            <p className="text-slate-400 text-xs mt-0.5">8 questions · select one answer for each.</p>
+            <p className="text-slate-400 text-xs mt-0.5">8 questions · 5 points each · select one answer for each.</p>
           </div>
           <span className="text-xs font-semibold tabular-nums text-slate-400">
             {answeredCount}/8
@@ -638,6 +735,33 @@ export default function Survey() {
           })}
         </div>
       </div>
+
+      {/* Device / RF pre-survey modules — not scored, checked for RF risks */}
+      {MODULES.map((name, m) => {
+        const complete = !Object.keys(validateModule(m, device)).length
+        return (
+          <div key={name} className="bg-white rounded-2xl border border-slate-200 shadow-card p-6">
+            <div className="flex items-center justify-between gap-3 mb-5">
+              <div>
+                <p className="text-[11px] font-semibold text-brand-teal uppercase tracking-wider">
+                  Device Pre-Survey · Module {m + 1}
+                </p>
+                <h3 className="text-slate-900 text-sm font-semibold mt-0.5">{name}</h3>
+                {m === 0 && (
+                  <p className="text-slate-400 text-xs mt-0.5">
+                    Worth 40 of the 80 points — checked for missing RF data, non-certified modules,
+                    multiple radios, unclear frequency bands and antenna modifications.
+                  </p>
+                )}
+              </div>
+              {complete && <CheckCircle2 className="w-5 h-5 text-brand-low flex-shrink-0" />}
+            </div>
+            <div className="space-y-6">
+              <DeviceModuleFields module={m} answers={device} set={setDeviceField} errors={errors} />
+            </div>
+          </div>
+        )
+      })}
 
       {/* Submit */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-6">
@@ -715,7 +839,9 @@ export default function Survey() {
           <p className="text-slate-400 text-sm">
             {answeredCount < 8
               ? `Answer ${8 - answeredCount} more question${8 - answeredCount !== 1 ? 's' : ''} to submit`
-              : 'All answered — results appear instantly below'}
+              : modulesDone < MODULES.length
+                ? `Complete ${MODULES.length - modulesDone} more device module${MODULES.length - modulesDone !== 1 ? 's' : ''} to submit`
+                : 'All answered — results appear instantly below'}
           </p>
         </div>
       </div>

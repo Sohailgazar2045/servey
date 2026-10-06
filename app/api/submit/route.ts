@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import { supabase } from '@/lib/supabase'
+import {
+  MODULES, normalizeDeviceAnswers, validateModule,
+  assessRisks, describeAnswers, getPathway, getReadiness, scoreRiskAreas,
+} from '@/lib/deviceSurvey'
 
-const SURVEY_VERSION = '1.0'
+// 2.0 — adds the five device / RF modules from the AethyrLex pre-survey.
+const SURVEY_VERSION = '2.0'
 
 const QUESTIONS = [
   'Does your organization maintain written compliance procedures?',
@@ -15,9 +20,12 @@ const QUESTIONS = [
   'Do you have a process for tracking corrective actions?',
 ]
 
+// 80-point framework: 8 compliance questions × 5 pts + 5 RF risk areas × 8 pts.
+const QUESTION_POINTS = 5
+
 const SCORE_MAP: Record<string, number> = {
-  yes: 10, partially: 5, somewhat: 5,
-  sometimes: 5, unsure: 5, no: 0,
+  yes: 5, partially: 2.5, somewhat: 2.5,
+  sometimes: 2.5, unsure: 2.5, no: 0,
 }
 
 function getRisk(score: number) {
@@ -31,24 +39,40 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { companyName, contactName, email, industry, answers,
             isLicensedBroadcaster } = body
+    const device = normalizeDeviceAnswers(body.device)
 
     if (!companyName || !contactName || !email || !industry ||
         !isLicensedBroadcaster ||
         !Array.isArray(answers) || answers.length !== 8) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
+    for (let m = 0; m < MODULES.length; m++) {
+      if (Object.keys(validateModule(m, device)).length) {
+        return NextResponse.json({ error: `Incomplete answers in ${MODULES[m]}` }, { status: 400 })
+      }
+    }
 
     // Segmentation only — deliberately excluded from scoring and from the
     // AI prompt so it cannot influence the score or the recommendations.
     const isBroadcaster = String(isLicensedBroadcaster).toLowerCase() === 'yes'
 
+    // ── Device / RF risks (rule-based) ────────────────────────────────────
+    const flags           = assessRisks(device)
+    const readiness       = getReadiness(flags)
+    const pathway         = getPathway(device)
+    const deviceResponses = describeAnswers(device)
+
     // ── Score ─────────────────────────────────────────────────────────────
-    let score = 0
-    const scoredAnswers = (answers as string[]).map((answer, i) => {
-      const pts = SCORE_MAP[answer.toLowerCase()] ?? 0
-      score += pts
-      return { question: QUESTIONS[i], answer, points: pts }
-    })
+    const scoredAnswers = [
+      ...(answers as string[]).map((answer, i) => ({
+        question:  QUESTIONS[i],
+        answer,
+        points:    SCORE_MAP[answer.toLowerCase()] ?? 0,
+        maxPoints: QUESTION_POINTS,
+      })),
+      ...scoreRiskAreas(flags),
+    ]
+    const score = scoredAnswers.reduce((sum, a) => sum + a.points, 0)
 
     const risk = getRisk(score)
 
@@ -56,29 +80,54 @@ export async function POST(req: NextRequest) {
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
     const answerBlock = scoredAnswers
-      .map((a, i) => `Q${i + 1}: ${a.question}\nAnswer: ${a.answer} (${a.points} pts)`)
+      .map((a, i) => `Q${i + 1}: ${a.question}\nAnswer: ${a.answer} (${a.points}/${a.maxPoints} pts)`)
       .join('\n\n')
 
+    const deviceBlock = MODULES.map(m => {
+      const rows = deviceResponses.filter(r => r.module === m)
+      return `## ${m}\n${rows.map(r => `- ${r.question}: ${r.answer}`).join('\n')}`
+    }).join('\n\n')
+
+    const flagBlock = flags.length
+      ? flags.map(f => `- [${f.severity.toUpperCase()}] ${f.category}: ${f.title}`).join('\n')
+      : '- None'
+
     const prompt =
-`You are an FCC regulatory compliance expert. Analyze this ${industry} company's readiness survey.
+`You are an FCC regulatory compliance and equipment authorization expert. Analyze this ${industry} company's readiness survey.
 
 Company: ${companyName}
-Score: ${score}/80 — ${risk.level}
 
+Overall score: ${score}/80 — ${risk.level}
+(8 compliance questions × 5 pts + 5 RF risk areas × 8 pts)
+
+PART A — Scored items
 ${answerBlock}
+
+PART B — Device / RF pre-survey answers
+${deviceBlock}
+
+RF risk flags identified by rules:
+${flagBlock}
+
+Likely certification path: ${pathway}
 
 Return ONLY valid JSON with this exact shape:
 {
-  "strengths":       ["string", "string"],
-  "weaknesses":      ["string", "string"],
-  "recommendations": ["string", "string", "string"]
+  "strengths":          ["string", "string"],
+  "weaknesses":         ["string", "string"],
+  "recommendations":    ["string", "string", "string"],
+  "rfSummary":          "string",
+  "missingInformation": ["string"]
 }
 
 Guidelines:
-- strengths (2–3): based on Yes/high-score answers; specific to FCC obligations for ${industry}
-- weaknesses (2–3): based on No/Partial answers; specific to FCC compliance gaps
-- recommendations (3): actionable, prioritized steps; 1–2 sentences each
-- If all answers are Yes, highlight the strong posture and suggest sustaining practices`
+- This is ONE report covering the organization and the device together.
+- strengths (2–3): based on full-point items in Part A (compliance practices and RF risk areas with no risk found)
+- weaknesses (2–3): based on low-point items in Part A, especially high RF risks
+- recommendations (3–5): actionable, prioritized steps covering both, highest risk first; 1–2 sentences each
+- rfSummary: 3–4 sentences describing the device, its main RF compliance risks and the likely certification path
+- missingInformation: specific device data to gather before testing (e.g. exact frequency band, module FCC ID, antenna gain); empty array if nothing is missing
+- Cite FCC rule parts or KDBs only when you are confident they apply. Do not invent facts about the device.`
 
     const completion = await openai.chat.completions.create({
       model:           'gpt-4o-mini',
@@ -86,7 +135,20 @@ Guidelines:
       response_format: { type: 'json_object' },
     })
 
-    const analysis = JSON.parse(completion.choices[0].message.content ?? '{}')
+    const ai = JSON.parse(completion.choices[0].message.content ?? '{}')
+    const analysis = {
+      strengths:       Array.isArray(ai.strengths)       ? ai.strengths.map(String)       : [],
+      weaknesses:      Array.isArray(ai.weaknesses)      ? ai.weaknesses.map(String)      : [],
+      recommendations: Array.isArray(ai.recommendations) ? ai.recommendations.map(String) : [],
+    }
+    const deviceAssessment = {
+      readiness,
+      pathway,
+      flags,
+      responses:          deviceResponses,
+      summary:            typeof ai.rfSummary === 'string' ? ai.rfSummary : '',
+      missingInformation: Array.isArray(ai.missingInformation) ? ai.missingInformation.map(String) : [],
+    }
 
     // ── Build record ──────────────────────────────────────────────────────
     const submissionDate = new Date().toISOString()
@@ -97,7 +159,7 @@ Guidelines:
     const id = crypto.randomUUID()
 
     // ── Save to Supabase ──────────────────────────────────────────────────
-    const { error: dbError } = await supabase.from('survey_submissions').insert({
+    const baseRow = {
       id,
       survey_version:  SURVEY_VERSION,
       submission_date: submissionDate,
@@ -112,8 +174,28 @@ Guidelines:
       max_score:       80,
       risk_level:      risk.level,
       analysis,
-    })
+    }
+    const deviceRow = {
+      device_answers:    device,
+      device_assessment: deviceAssessment,
+      readiness_level:   readiness.level,
+    }
 
+    // Fall back gracefully if the v2.0 migration in supabase/schema.sql has not been run:
+    // PGRST204 = device columns missing, 22P02 = `score` is still an integer column.
+    let row: Record<string, unknown> = { ...baseRow, ...deviceRow }
+    let { error: dbError } = await supabase.from('survey_submissions').insert(row)
+    for (let attempt = 0; dbError && attempt < 2; attempt++) {
+      if (dbError.code === 'PGRST204' && 'device_answers' in row) {
+        console.error('survey_submissions is missing the device columns; saving without them:', dbError.message)
+        const { device_answers, device_assessment, readiness_level, ...rest } = row
+        row = rest
+      } else if (dbError.code === '22P02' && row.score !== Math.round(score)) {
+        console.error('survey_submissions.score is an integer column; saving a rounded score:', dbError.message)
+        row = { ...row, score: Math.round(score) }
+      } else break
+      ;({ error: dbError } = await supabase.from('survey_submissions').insert(row))
+    }
     if (dbError) console.error('Supabase insert error:', dbError)
 
     const auditRecord = {
@@ -140,6 +222,7 @@ Guidelines:
       riskBadge:  risk.badge,
       riskColor:  risk.color,
       analysis,
+      device:     deviceAssessment,
       auditRecord,
     })
   } catch (err) {

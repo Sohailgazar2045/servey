@@ -1,3 +1,5 @@
+import type { DeviceAssessment } from '@/lib/deviceSurvey'
+
 export interface PDFData {
   companyName:  string
   contactName:  string
@@ -5,6 +7,8 @@ export interface PDFData {
   industry:     string
   /** Segmentation only — appears in the Audit Record, never in scored sections. */
   isLicensedBroadcaster?: string
+  /** Device / RF pre-survey section — absent on submissions made before v2.0. */
+  device?:      DeviceAssessment
   score:        number
   maxScore:     number
   riskLevel:    string
@@ -18,7 +22,7 @@ export interface PDFData {
     submissionDate: string
     surveyVersion:  string
     scoreGenerated: string
-    responses: { question: string; answer: string; points: number }[]
+    responses: { question: string; answer: string; points: number; maxPoints?: number }[]
   }
 }
 
@@ -53,14 +57,14 @@ export async function generatePDF(data: PDFData): Promise<void> {
 
   // ── Helpers ──────────────────────────────────────────────────────────────
 
-  function pageHeader(doc: InstanceType<typeof jsPDF>, pageNum: number, total: number) {
+  // Page numbers are added in a final pass, once the total page count is known.
+  function pageHeader(doc: InstanceType<typeof jsPDF>) {
     doc.setFillColor(...NAVY)
     doc.rect(0, 0, W, 16, 'F')
     doc.setFontSize(8)
     doc.setFont('helvetica', 'bold')
     doc.setTextColor(...WHITE)
     doc.text('AethyrLex  ·  FCC Compliance Readiness Assessment', M, 10)
-    doc.text(`Page ${pageNum} of ${total}`, W - M, 10, { align: 'right' })
   }
 
   function pageFooter(doc: InstanceType<typeof jsPDF>) {
@@ -190,7 +194,7 @@ export async function generatePDF(data: PDFData): Promise<void> {
 
   doc.setFontSize(7.5)
   doc.setTextColor(71, 85, 105)
-  doc.text('Page 1 of 4', W / 2, 289, { align: 'center' })
+  // Cover page number is added in the final pass
 
   // ═══════════════════════════════════════════════════════════════════════
   // PAGE 2 — Executive Summary
@@ -199,7 +203,7 @@ export async function generatePDF(data: PDFData): Promise<void> {
   doc.addPage()
   doc.setFillColor(...LIGHT)
   doc.rect(0, 0, W, 297, 'F')
-  pageHeader(doc, 2, 4)
+  pageHeader(doc)
 
   let y = 30
   y = sectionTitle(doc, 'Executive Summary', y)
@@ -313,11 +317,11 @@ export async function generatePDF(data: PDFData): Promise<void> {
   doc.addPage()
   doc.setFillColor(...LIGHT)
   doc.rect(0, 0, W, 297, 'F')
-  pageHeader(doc, 3, 4)
+  pageHeader(doc)
 
   y = 30
   y = sectionTitle(doc, 'Detailed Findings', y)
-  y = paragraph(doc, 'Individual question responses and associated compliance points.', y) + 4
+  y = paragraph(doc, 'Individual question responses and RF risk areas with their compliance points.', y) + 4
 
   // Table header
   doc.setFillColor(...NAVY)
@@ -340,7 +344,8 @@ export async function generatePDF(data: PDFData): Promise<void> {
     doc.setLineWidth(0.25)
     doc.line(M, y + rowH, M + CW, y + rowH)
 
-    const ptColor: RGB = r.points === 10 ? RISK_COLORS.low : r.points === 5 ? RISK_COLORS.moderate : RISK_COLORS.high
+    const max = r.maxPoints ?? 10   // submissions before v2.0 used 10 pts per question
+    const ptColor: RGB = r.points >= max ? RISK_COLORS.low : r.points > 0 ? RISK_COLORS.moderate : RISK_COLORS.high
 
     doc.setFontSize(7.5)
     doc.setFont('helvetica', 'bold')
@@ -358,7 +363,7 @@ export async function generatePDF(data: PDFData): Promise<void> {
 
     doc.setFont('helvetica', 'bold')
     doc.setTextColor(...ptColor)
-    doc.text(`${r.points}/10`, M + 148, y + 8)
+    doc.text(`${r.points}/${max}`, M + 148, y + 8)
 
     doc.setFillColor(...ptColor)
     doc.circle(M + 164, y + 5.5, 2, 'F')
@@ -382,13 +387,110 @@ export async function generatePDF(data: PDFData): Promise<void> {
   pageFooter(doc)
 
   // ═══════════════════════════════════════════════════════════════════════
-  // PAGE 4 — Audit Record
+  // Device RF Risk Assessment (may span several pages)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  if (data.device) {
+    const dev = data.device
+
+    const newDevicePage = () => {
+      doc.addPage()
+      doc.setFillColor(...LIGHT)
+      doc.rect(0, 0, W, 297, 'F')
+      pageHeader(doc)
+      pageFooter(doc)
+      return 30
+    }
+    const ensure = (yy: number, h: number) => (yy + h > 275 ? newDevicePage() : yy)
+    const text = (s: string, yy: number, opts: { x?: number; w?: number; size?: number; color?: RGB; bold?: boolean } = {}) => {
+      const { x = M, w = CW, size = 9.5, color = [51, 65, 85] as RGB, bold = false } = opts
+      doc.setFontSize(size)
+      doc.setFont('helvetica', bold ? 'bold' : 'normal')
+      doc.setTextColor(...color)
+      const lh = size * 0.47
+      for (const line of doc.splitTextToSize(s, w) as string[]) {
+        yy = ensure(yy, lh)
+        doc.text(line, x, yy)
+        yy += lh
+      }
+      return yy
+    }
+    const subTitle = (s: string, yy: number) => text(s, ensure(yy, 12), { size: 11, bold: true, color: DARK }) + 2
+
+    y = newDevicePage()
+    y = sectionTitle(doc, 'Device RF Findings', y)
+    y = paragraph(doc, 'Rule-based check for missing RF data, non-certified modules, multiple radios, unclear frequency bands and antenna modifications. These five areas make up 40 of the 80 points (see Detailed Findings).', y) + 3
+
+    const counts = (['high', 'medium', 'low'] as const)
+      .map(s => `${dev.flags.filter(f => f.severity === s).length} ${s}`).join('  ·  ')
+    y = text(`Risks found: ${counts}`, y, { size: 9, bold: true, color: MUTED }) + 6
+
+    y = subTitle('Likely Certification Path', y)
+    y = text(dev.pathway, y) + 5
+
+    if (dev.summary) {
+      y = subTitle('Summary', y)
+      y = text(dev.summary, y) + 5
+    }
+
+    y = subTitle(`Identified Risks (${dev.flags.length})`, y)
+    if (!dev.flags.length) y = text('No RF risks identified from the information provided.', y) + 3
+    for (const f of dev.flags) {
+      y = ensure(y, 18)
+      const c = RISK_COLORS[f.severity === 'medium' ? 'moderate' : f.severity] ?? MUTED
+      doc.setFillColor(...(f.severity === 'low' ? MUTED : c))
+      doc.roundedRect(M, y - 3.6, 15, 5, 1, 1, 'F')
+      doc.setFontSize(6.5)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(...WHITE)
+      doc.text(f.severity.toUpperCase(), M + 7.5, y, { align: 'center' })
+      y = text(f.title, y, { x: M + 18, w: CW - 18, bold: true, color: DARK })
+      y = text(f.category.toUpperCase(), y + 0.5, { x: M + 18, w: CW - 18, size: 7, color: MUTED })
+      y = text(f.detail, y + 0.5, { x: M + 18, w: CW - 18, size: 9 }) + 4
+    }
+
+    if (dev.missingInformation.length) {
+      y = subTitle('Information to Gather', y + 2)
+      for (const item of dev.missingInformation) {
+        y = ensure(y, 6)
+        doc.setFillColor(...RISK_COLORS.moderate)
+        doc.circle(M + 1.5, y - 1.2, 1.2, 'F')
+        y = text(item, y, { x: M + 6, w: CW - 6 }) + 2
+      }
+    }
+
+    y = subTitle('Device Responses', y + 4)
+    let currentModule = ''
+    for (const r of dev.responses) {
+      if (r.module !== currentModule) {
+        currentModule = r.module
+        y = ensure(y + 2, 12)
+        doc.setFillColor(241, 245, 249)
+        doc.rect(M, y - 4.5, CW, 7, 'F')
+        y = text(currentModule.toUpperCase(), y, { x: M + 2, size: 8, bold: true, color: BLUE }) + 2.5
+      }
+      const qLines = doc.splitTextToSize(r.question, 78) as string[]
+      const aLines = doc.splitTextToSize(r.answer, CW - 86) as string[]
+      const h = Math.max(qLines.length, aLines.length) * 4.2 + 2.5
+      y = ensure(y, h)
+      doc.setFontSize(8.5)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(...MUTED)
+      doc.text(qLines, M + 2, y)
+      doc.setTextColor(...DARK)
+      doc.text(aLines, M + 86, y)
+      y += h
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // LAST PAGE — Audit Record
   // ═══════════════════════════════════════════════════════════════════════
 
   doc.addPage()
   doc.setFillColor(...LIGHT)
   doc.rect(0, 0, W, 297, 'F')
-  pageHeader(doc, 4, 4)
+  pageHeader(doc)
 
   y = 30
   y = sectionTitle(doc, 'Audit Record', y)
@@ -405,7 +507,7 @@ export async function generatePDF(data: PDFData): Promise<void> {
                                  data.isLicensedBroadcaster.slice(1).toLowerCase()
                                : 'Not provided'],
     ['Survey Version',     data.auditRecord.surveyVersion],
-    ['Total Questions',    '8'],
+    ['Total Questions',    data.device ? '8 questions + 5 device modules' : '8'],
     ['Compliance Score',   `${data.score} / 80 points`],
     ['Risk Classification',data.riskLevel],
     ['Score Generated',    data.auditRecord.scoreGenerated],
@@ -446,6 +548,22 @@ export async function generatePDF(data: PDFData): Promise<void> {
   doc.text(discLines, M + 4, y + 15)
 
   pageFooter(doc)
+
+  // ── Page numbers ─────────────────────────────────────────────────────────
+  const pageCount = doc.getNumberOfPages()
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i)
+    doc.setFontSize(i === 1 ? 7.5 : 8)
+    if (i === 1) {
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(71, 85, 105)
+      doc.text(`Page 1 of ${pageCount}`, W / 2, 289, { align: 'center' })
+    } else {
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(...WHITE)
+      doc.text(`Page ${i} of ${pageCount}`, W - M, 10, { align: 'right' })
+    }
+  }
 
   // ── Save ─────────────────────────────────────────────────────────────────
   const safe = data.companyName.replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_')
